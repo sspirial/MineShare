@@ -301,6 +301,7 @@ function createListingCard(listing, isOwn = false) {
       <div>📊 ${listing.dataType} • ${listing.dataSize} events</div>
       <div>📅 ${listing.timeRange}</div>
       <div>💰 Price: $${listing.price.toFixed(2)} • Created: ${date}</div>
+      ${listing.metadata && listing.metadata.walrus ? `<div>🔗 Walrus: ${listing.metadata.walrus.commitmentCid ? listing.metadata.walrus.commitmentCid.substring(0, 16) + '…' : (listing.metadata.walrus.simulated ? 'Simulated' : 'Pending')}</div>` : ''}
     </div>
   `;
   
@@ -402,6 +403,7 @@ function createMarketplaceCard(listing) {
       <div>📊 ${listing.dataType} • ${listing.dataSize} events</div>
       <div>📅 ${listing.timeRange}</div>
       <div>👤 Seller: ${sellerId}</div>
+      ${listing.metadata && listing.metadata.walrus ? `<div>🔗 Walrus: ${listing.metadata.walrus.commitmentCid ? listing.metadata.walrus.commitmentCid.substring(0, 16) + '…' : (listing.metadata.walrus.simulated ? 'Simulated' : 'Pending')}</div>` : ''}
     </div>
   `;
   

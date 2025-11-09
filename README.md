@@ -180,6 +180,35 @@ Production-ready module with:
 - Clipboard content
 - User fingerprinting
 
+## 🌐 Walrus Blockchain Integration
+
+This build ships with a lightweight Walrus adapter to commit dataset fingerprints and optionally record purchase receipts.
+
+### What it does
+- On listing creation, MineShare computes a SHA-256 hash of your locally collected, sanitized events and stores it as a dataHash.
+- If Walrus is enabled, MineShare sends a commit request to your configured Walrus endpoint and stores the returned commitment CID and tx hash in the listing metadata.
+- On purchase, MineShare optionally records a purchase receipt with Walrus and attaches the receipt id to the transaction.
+
+### Configure Walrus
+1. Open the full-page UI (right-click the extension → Options) and go to Settings.
+2. In the "Walrus Blockchain" section:
+   - Toggle "Enable Walrus Integration".
+   - Set Base URL to your Walrus HTTP endpoint or proxy (e.g., https://api.your-walrus.example).
+   - Optionally set an API key (sent as Bearer token).
+   - Click "Test Connection" to verify reachability.
+
+Notes:
+- The MV3 build avoids bundlers; the adapter uses fetch. You can later swap it to use @mysten/walrus when introducing a bundler.
+- If Walrus is disabled or unreachable, the adapter falls back to a simulated flow and still stores the local dataHash.
+
+### Where it appears in the UI
+- Listings show a Walrus badge with the first characters of the commitment CID when available (or "Simulated").
+- Transactions may include a walrusReceiptId.
+
+### Security & Privacy
+- The committed hash is derived from locally stored sanitized events (consistent with your collection settings). No raw sensitive inputs are sent.
+- You can disable collection or specific categories at any time.
+
 ## 🌐 Blockchain Integration (Future)
 
 ### Current Implementation
@@ -266,7 +295,7 @@ await MarketplaceAPI.dataHelper.getCollectedDataInfo();
 - [ ] MetaMask integration
 - [ ] Smart contract deployment
 - [ ] Real blockchain transactions
-- [ ] IPFS for data storage
+- [ ] IPFS/Walrus data storage pipelines
 - [ ] Escrow system
 
 ### Phase 3: Advanced Features

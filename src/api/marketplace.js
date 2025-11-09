@@ -179,6 +179,31 @@ class ListingService {
         metadata: listingData.metadata || {}
       };
 
+      // Walrus integration: compute a commitment of the user's data and register it (best-effort)
+      try {
+        // Compute a stable data hash of current collected events (privacy: uses stored anonymized events)
+        const helper = new DataCollectionHelper();
+        const dataInfo = await helper.getCollectedDataInfo();
+        if (!dataInfo.isEmpty) {
+          const dataHash = await helper.computeDataHash(dataInfo.events);
+          if (dataHash && window && window.WalrusAPI) {
+            const commitRes = await window.WalrusAPI.commitListing({ listing, dataHash });
+            listing.metadata.walrus = {
+              dataHash,
+              commitmentCid: commitRes && commitRes.commitmentCid || null,
+              txHash: commitRes && commitRes.txHash || null,
+              endpoint: commitRes && commitRes.endpoint || null,
+              simulated: !!(commitRes && commitRes.simulated)
+            };
+          } else {
+            // Store the local data hash even if Walrus is not enabled
+            listing.metadata.walrus = { dataHash, commitmentCid: null, txHash: null, endpoint: null, simulated: true };
+          }
+        }
+      } catch (e) {
+        console.warn('Walrus commit skipped:', e);
+      }
+
       // Store listing
       const stored = await chrome.storage.local.get([MARKETPLACE_CONFIG.storageKeys.listings]);
       const listings = stored[MARKETPLACE_CONFIG.storageKeys.listings] || [];
@@ -337,6 +362,22 @@ class TransactionService {
         throw new Error('Transaction failed');
       }
 
+      // Optional: record purchase on Walrus (best-effort)
+      let walrusReceiptId = null;
+      if (window && window.WalrusAPI) {
+        try {
+          const res = await window.WalrusAPI.recordPurchase({
+            listingId,
+            buyer: buyerId,
+            price: listing.price,
+            txHint: signResult.txHash
+          });
+          walrusReceiptId = res && res.receiptId ? res.receiptId : null;
+        } catch (e) {
+          console.warn('Walrus purchase record failed:', e);
+        }
+      }
+
       // Create transaction record
       const transaction = {
         id: 'txn_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
@@ -347,7 +388,9 @@ class TransactionService {
         txHash: signResult.txHash,
         signature: signResult.signature,
         timestamp: Date.now(),
-        status: 'completed' // completed, pending, failed
+        status: 'completed', // completed, pending, failed
+        walrusReceiptId,
+        walrusCommitCid: listing && listing.metadata && listing.metadata.walrus ? listing.metadata.walrus.commitmentCid : null
       };
 
       // Store transaction
@@ -438,6 +481,31 @@ class DataCollectionHelper {
       console.error('Failed to get collected data:', error);
       return { size: 0, timeRange: 'Error', isEmpty: true };
     }
+  }
+
+  /**
+   * Compute a deterministic hash of the provided events array for Walrus commitment
+   */
+  async computeDataHash(events) {
+    try {
+      const stable = this._stableStringify(events || []);
+      const enc = new TextEncoder();
+      const data = enc.encode(stable);
+      const digest = await crypto.subtle.digest('SHA-256', data);
+      const hex = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      return '0x' + hex;
+    } catch (e) {
+      console.warn('computeDataHash failed:', e);
+      return null;
+    }
+  }
+
+  _stableStringify(value) {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) return '[' + value.map(v => this._stableStringify(v)).join(',') + ']';
+    const keys = Object.keys(value).sort();
+    const parts = keys.map(k => '"' + k + '":' + this._stableStringify(value[k]));
+    return '{' + parts.join(',') + '}';
   }
 }
 

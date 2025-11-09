@@ -24,6 +24,11 @@
 
 #### ✅ Completed
 1. **manifest.json** - Updated extension name to "MineShare"
+7. **src/api/walrus.js** - New Walrus adapter (MV3-friendly, no bundler)
+8. **src/api/marketplace.js** - Listing commit + purchase receipt integration
+9. **src/ui/options.html/js** - Walrus settings UI and persistence
+10. **src/ui/popup.html/js** - Display Walrus commitment on listing cards
+11. **README.md** - Walrus integration documentation
 2. **icon16.png, icon48.png, icon128.png** - New brand icons (gold circle + purple pickaxe)
 3. **mineshare.css** - Complete design system CSS (400+ lines)
 4. **MINESHARE_REBRAND.md** - Comprehensive rebranding documentation
@@ -86,7 +91,8 @@
    - Update brand references if any
 
 ### Phase 3: Documentation
-5. Update `README.md`
+5. Update `README.md` (done: added Walrus integration section)
+6. Add sample Walrus endpoint instructions and security notes (done)
    - Rebrand to MineShare
    - Update screenshots (future)
    - Add new tagline
@@ -119,7 +125,12 @@
 - [ ] popup.js (backed up, ready to update)
 - [ ] options.html (backed up, ready to update)
 - [ ] options.js (backed up, ready to update)
-- [ ] README.md (needs update)
+- [x] README.md (updated with Walrus section)
+
+### Walrus Integration Summary
+- Hash of collected, sanitized events committed on listing create when enabled.
+- Purchase flow records optional Walrus receipt; both steps degrade gracefully if disabled.
+- MV3-compatible; use `@mysten/walrus` via bundler in future.
 
 ---
 

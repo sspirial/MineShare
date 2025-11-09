@@ -393,6 +393,63 @@ async function loadSettings() {
     label.appendChild(document.createTextNode(cat.label));
     categoriesContainer.appendChild(label);
   });
+
+  // Walrus settings (dynamic section)
+  const walrusBox = document.getElementById('walrus-settings');
+  if (walrusBox && walrusBox.childElementCount === 0) {
+    walrusBox.innerHTML = `
+      <h2 style="margin-top:40px;">Walrus Blockchain</h2>
+      <p style="font-size:14px; color: var(--muted); margin-bottom:12px;">Configure optional Walrus integration for data commitment and purchase receipts.</p>
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:12px;font-weight:600;">
+        <input type="checkbox" id="walrus-enabled" style="width:20px;height:20px;" /> Enable Walrus Integration
+      </label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;">Endpoint Base URL</label>
+          <input type="text" id="walrus-base" placeholder="https://your-walrus-endpoint" />
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;">API Key (optional)</label>
+          <input type="text" id="walrus-key" placeholder="Bearer token" />
+        </div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:12px;">
+        <button class="secondary" id="walrus-test-btn">Test Connection</button>
+        <span id="walrus-test-status" style="font-size:12px;color:var(--muted);"></span>
+      </div>
+    `;
+
+    // Populate from stored config
+    const cfgStore = await chrome.storage.local.get(['walrus_config_v1']);
+    const walrusCfg = cfgStore.walrus_config_v1 || { enabled: false, baseUrl: '', apiKey: '' };
+    document.getElementById('walrus-enabled').checked = !!walrusCfg.enabled;
+    document.getElementById('walrus-base').value = walrusCfg.baseUrl || '';
+    document.getElementById('walrus-key').value = walrusCfg.apiKey || '';
+
+    document.getElementById('walrus-test-btn').onclick = async () => {
+      document.getElementById('walrus-test-status').textContent = 'Testing...';
+      try {
+        if (window.WalrusAPI) {
+          // save current inputs first
+          await window.WalrusAPI.saveConfig({
+            enabled: document.getElementById('walrus-enabled').checked,
+            baseUrl: document.getElementById('walrus-base').value.trim(),
+            apiKey: document.getElementById('walrus-key').value.trim()
+          });
+          const res = await window.WalrusAPI.testConnection();
+          if (res.success) {
+            document.getElementById('walrus-test-status').textContent = '✅ Connection OK';
+          } else {
+            document.getElementById('walrus-test-status').textContent = '⚠️ ' + (res.error || 'Failed');
+          }
+        } else {
+          document.getElementById('walrus-test-status').textContent = 'Walrus service not loaded';
+        }
+      } catch (err) {
+        document.getElementById('walrus-test-status').textContent = 'Error: ' + err.message;
+      }
+    };
+  }
 }
 
 async function saveSettings() {
@@ -404,6 +461,23 @@ async function saveSettings() {
   });
   
   await chrome.storage.local.set({ collector_prefs: { global, enabled } });
+
+  // Save Walrus settings
+  try {
+    if (window.WalrusAPI) {
+      const walrusEnabledEl = document.getElementById('walrus-enabled');
+      if (walrusEnabledEl) {
+        const cfg = {
+          enabled: walrusEnabledEl.checked,
+          baseUrl: document.getElementById('walrus-base').value.trim(),
+          apiKey: document.getElementById('walrus-key').value.trim()
+        };
+        await window.WalrusAPI.saveConfig(cfg);
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to save Walrus config:', e);
+  }
   alert('Settings saved successfully!');
 }
 
