@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "MineShare - Privacy-First Data Trading",
+  "description": "Collect, manage, and trade your browsing data securely. Privacy-preserving data marketplace with blockchain integration.",
+  "version": "1.0.0",
+  "permissions": ["storage","activeTab","scripting","tabs","webNavigation"],
+  "action": {
+    "default_popup": "src/ui/popup.html",
+    "default_title": "MineShare",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "options_page": "src/ui/options.html",
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/content_script.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": ["<all_urls>"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.infura.io https://*.alchemy.com;"
+  }
+}

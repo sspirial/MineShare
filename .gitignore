@@ -1,0 +1,30 @@
+# Backup files
+*-old.*
+*_old.*
+*.backup
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# Node modules (if added later)
+node_modules/
+package-lock.json
+
+# Build artifacts (if added later)
+dist/
+build/
+*.zip
+
+# Logs
+*.log
+npm-debug.log*
