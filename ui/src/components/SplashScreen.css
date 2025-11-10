@@ -1,0 +1,42 @@
+.splash-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-hover) 100%);
+    text-align: center;
+    padding: 40px;
+}
+
+.splash-screen h1 {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.splash-screen p {
+    font-size: 18px;
+    color: var(--purple);
+    margin-bottom: 30px;
+}
+
+.splash-screen button {
+    background: var(--purple);
+    color: white;
+    border: none;
+    padding: 14px 32px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.splash-screen button:hover {
+    background: var(--purple-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(106, 27, 154, 0.3);
+}
