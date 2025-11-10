@@ -3,12 +3,19 @@
   "name": "MineShare - Privacy-First Data Trading",
   "description": "Collect, manage, and trade your browsing data securely. Privacy-preserving data marketplace with blockchain integration.",
   "version": "1.0.0",
+  "icons": {
+    "16": "assets/icons/new icons/favicon-16x16.png",
+    "32": "assets/icons/new icons/favicon-32x32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
   "permissions": ["storage","activeTab","scripting","tabs","webNavigation"],
   "action": {
     "default_popup": "src/ui/popup.html",
     "default_title": "MineShare",
     "default_icon": {
-      "16": "assets/icons/icon16.png",
+      "16": "assets/icons/new icons/favicon-16x16.png",
+      "32": "assets/icons/new icons/favicon-32x32.png",
       "48": "assets/icons/icon48.png",
       "128": "assets/icons/icon128.png"
     }

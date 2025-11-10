@@ -86,18 +86,7 @@ async function loadTabData(tabName) {
 // ============================================================================
 
 function setupCollectionListeners() {
-  // Overlay toggle (original feature)
-  document.getElementById('toggle').addEventListener('click', async () => {
-    try {
-      const tab = await getActiveTab();
-      if (!tab) return;
-      const res = await chrome.tabs.sendMessage(tab.id, {type: 'toggle-overlay'});
-      document.getElementById('status').textContent = (res && res.visible) ? 'ON' : 'OFF';
-    } catch (err) {
-      console.error('Failed to toggle overlay', err);
-      document.getElementById('status').textContent = 'error';
-    }
-  });
+  // Overlay toggle control removed; no-op retained for backward compatibility
 
   // Wallet connection
   document.getElementById('connect-wallet').addEventListener('click', async () => {
@@ -615,15 +604,5 @@ function escapeHtml(text) {
 async function loadInitialData() {
   refreshStorageInfo();
   refreshDomainList();
-  
-  // Update overlay status
-  try {
-    const tab = await getActiveTab();
-    if (tab) {
-      const res = await chrome.tabs.sendMessage(tab.id, {type: 'get-overlay-state'});
-      document.getElementById('status').textContent = (res && res.visible) ? 'ON' : 'OFF';
-    }
-  } catch (err) {
-    document.getElementById('status').textContent = '—';
-  }
+
 }

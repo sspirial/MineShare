@@ -72,7 +72,10 @@
       }
       
       .logo-icon {
-        font-size: 24px;
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        vertical-align: middle;
       }
       
       /* Tab navigation */
@@ -562,7 +565,7 @@
     <!-- MineShare Header -->
     <div class="header">
       <h1 class="logo">
-        <span class="logo-icon">⛏️</span>
+        <img class="logo-icon" src="../../assets/icons/new icons/favicon-32x32.png" alt="MineShare logo" width="24" height="24" />
         MineShare
       </h1>
     </div>
@@ -576,10 +579,7 @@
 
     <!-- Collection Tab -->
     <div class="tab-content active" id="tab-collection">
-      <div style="margin-bottom: 14px;">
-        <button id="toggle" class="btn-secondary" style="width: 100%;">Toggle Overlay</button>
-        <span id="status" style="margin-left: 8px; font-weight: 600; color: #666;">—</span>
-      </div>
+      <!-- Removed Toggle Overlay control (not used by users) -->
 
       <h3>Collection Settings</h3>
       
