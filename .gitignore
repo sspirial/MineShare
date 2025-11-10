@@ -16,11 +16,13 @@ Thumbs.db
 .idea/
 *.sublime-*
 
-# Node modules (if added later)
+# Node modules
 node_modules/
 package-lock.json
+pnpm-lock.yaml
+.pnpm-store/
 
-# Build artifacts (if added later)
+# Build artifacts
 dist/
 build/
 *.zip

@@ -1,28 +1,43 @@
-# MineShare - Project Structure
+# MineShare - Project Structure (React)
 
-This document describes the organized directory structure of the MineShare Chrome extension.
+This document describes the organized directory structure of the MineShare Chrome extension built with React.
 
 ## 📁 Directory Layout
 
 ```
-mineshare-extension/
+MineShare/
 │
 ├── 📄 manifest.json              # Extension manifest (entry point)
 ├── 📄 README.md                  # Project documentation
+├── 📄 REACT_MIGRATION.md         # React migration documentation
 ├── 📄 .gitignore                 # Git ignore rules
+├── 📄 package.json               # Dependencies and scripts
+├── 📄 pnpm-lock.yaml            # pnpm lock file
+├── 📄 vite.config.js            # Vite build configuration
+├── 📄 build-extension.js         # Post-build script
 │
 ├── 📂 src/                       # Source code
 │   ├── 📄 background.js          # Service worker (data collection)
 │   ├── 📄 content_script.js      # Page interaction tracker
 │   │
-│   ├── 📂 ui/                    # User interface files
-│   │   ├── 📄 popup.html         # Extension popup (400px)
-│   │   ├── 📄 popup.js           # Popup controller
-│   │   ├── 📄 options.html       # Full-page marketplace
-│   │   └── 📄 options.js         # Options controller
+│   ├── 📂 ui/                    # User interface (React)
+│   │   ├── 📂 components/        # Reusable React components
+│   │   │   ├── 📄 Header.jsx     # Header component
+│   │   │   ├── 📄 Modal.jsx      # Modal dialog
+│   │   │   ├── 📄 ListingCard.jsx    # Listing card
+│   │   │   └── 📄 StatusMessage.jsx  # Status messages
+│   │   │
+│   │   ├── 📄 PopupApp.jsx       # Popup React application
+│   │   ├── 📄 OptionsApp.jsx     # Options React application
+│   │   ├── 📄 popup-main.jsx     # Popup entry point
+│   │   ├── 📄 options-main.jsx   # Options entry point
+│   │   ├── 📄 popup-new.html     # Popup HTML template
+│   │   ├── 📄 options-new.html   # Options HTML template
+│   │   └── 📄 styles.css         # Global styles
 │   │
 │   ├── 📂 api/                   # API & business logic
-│   │   ├── 📄 marketplace.js     # Marketplace API (wallet, listings, transactions)
+│   │   ├── 📄 marketplace.js     # Marketplace API
+│   │   ├── 📄 walrus.js          # Walrus blockchain API
 │   │   └── 📄 data_api.js        # Data aggregation helper
 │   │
 │   └── 📂 types/                 # TypeScript definitions
@@ -30,101 +45,130 @@ mineshare-extension/
 │
 ├── 📂 assets/                    # Static assets
 │   ├── 📂 icons/                 # Extension icons
+│   │   ├── 📂 new icons/         # New brand icons
 │   │   ├── 🖼️ icon16.png         # 16x16 toolbar icon
 │   │   ├── 🖼️ icon48.png         # 48x48 management icon
 │   │   └── 🖼️ icon128.png        # 128x128 store icon
 │   │
-│   └── 📂 styles/                # Stylesheets
+│   └── 📂 styles/                # Legacy stylesheets
 │       └── 📄 mineshare.css      # Complete design system
+│
+├── 📂 public/                    # Public assets (Vite)
+│
+├── 📂 dist/                      # Built extension (generated)
+│   ├── 📄 manifest.json
+│   ├── 📂 src/
+│   ├── 📂 assets/
+│   └── (built files)
 │
 └── 📂 docs/                      # Documentation
     ├── 📄 MINESHARE_REBRAND.md        # Brand guidelines
-    ├── 📄 IMPLEMENTATION_SUMMARY.md   # Technical implementation guide
-    └── 📄 VISUAL_PREVIEW.md           # Design reference & mockups
+    ├── 📄 IMPLEMENTATION_SUMMARY.md   # Technical guide
+    └── 📄 VISUAL_PREVIEW.md           # Design reference
 ```
 
 ## 🗂️ File Organization Principles
 
 ### `/src/` - Source Code
-All executable JavaScript and HTML files live here, organized by function:
+All executable code organized by function:
 
 - **Root level**: Core extension files (background, content script)
-- **`/ui/`**: All user-facing HTML/JS files
+- **`/ui/`**: React components and entry points
+- **`/ui/components/`**: Reusable React components
 - **`/api/`**: Business logic and API modules
 - **`/types/`**: TypeScript type definitions
 
 ### `/assets/` - Static Assets
-Non-code resources organized by type:
+Non-code resources:
 
 - **`/icons/`**: Extension icons in multiple sizes
-- **`/styles/`**: CSS files (design system)
+- **`/styles/`**: Legacy CSS files
+
+### `/dist/` - Built Extension (Generated)
+Output directory from `pnpm run build` - ready to load into Chrome
 
 ### `/docs/` - Documentation
-All markdown documentation except README:
+All markdown documentation except README
 
-- Brand guidelines
-- Implementation guides
-- Visual references
+## 🏗️ Build System
+
+### Build Tools:
+- **Vite**: Fast build tool with HMR
+- **React**: UI framework with hooks
+- **pnpm**: Fast, efficient package manager
+
+### Build Scripts:
+```bash
+pnpm run build         # Build for production
+pnpm run build:watch   # Build and watch for changes
+pnpm run clean         # Remove dist folder
+```
+
+### Build Process:
+1. Vite bundles React components
+2. Post-build script copies static files
+3. API scripts are injected into HTML
+4. Final extension in `dist/` folder
 
 ## 📋 File Dependencies
 
 ### manifest.json → References:
 ```
-src/ui/popup.html
-src/ui/options.html
+src/ui/popup.html (built to dist/src/ui/popup.html)
+src/ui/options.html (built to dist/src/ui/options.html)
 src/background.js
 src/content_script.js
 assets/icons/*.png
 ```
 
-### popup.html → Loads:
+### popup.html (built) → Loads:
 ```
+../../assets/popup.js (React bundle)
+../../assets/styles.js (React styles)
+../../assets/styles.css
 ../api/marketplace.js
-popup.js
+../api/walrus.js
 ```
 
-### options.html → Loads:
+### PopupApp.jsx → Uses:
 ```
-../api/marketplace.js
-options.js
-```
-
-### background.js → Imports:
-```
-api/data_api.js (via importScripts)
+components/Header.jsx
+components/Modal.jsx
+components/ListingCard.jsx
+components/StatusMessage.jsx
+window.MarketplaceAPI
+window.WalrusAPI
+chrome.storage.local
 ```
 
 ## 🚀 Development Workflow
 
-### Running the Extension:
+### Initial Setup:
+```bash
+pnpm install
+pnpm run build
+```
+
+### Development:
+```bash
+# Option 1: Build once
+pnpm run build
+
+# Option 2: Build and watch (recommended)
+pnpm run build:watch
+```
+
+### Loading the Extension:
 1. Navigate to `chrome://extensions/`
 2. Enable "Developer mode"
 3. Click "Load unpacked"
-4. Select the root `mineshare-extension/` folder
+4. Select the `dist/` folder (not the root!)
 
-### Editing Files:
-- **UI Changes**: Edit files in `src/ui/`
-- **Business Logic**: Edit files in `src/api/`
-- **Styling**: Edit `assets/styles/mineshare.css`
-- **Icons**: Replace files in `assets/icons/`
-- **Manifest**: Edit `manifest.json` in root
-
-### After Changes:
-1. Go to `chrome://extensions/`
-2. Click refresh icon on MineShare extension
-3. Test changes
-
-## 📦 Build & Distribution
-
-For packaging the extension:
-
-```bash
-# Create distribution zip (from parent directory)
-zip -r mineshare-v1.0.0.zip mineshare-extension/ \
-  -x "*.git*" \
-  -x "*node_modules*" \
-  -x "*.DS_Store"
-```
+### After Code Changes:
+1. Build completes automatically (if using watch mode)
+2. Go to `chrome://extensions/`
+3. Click refresh icon on MineShare extension
+4. Test changes
 
 ## 🔍 Quick File Finder
 
@@ -133,32 +177,54 @@ Need to edit something? Here's where to look:
 | Task | File Location |
 |------|---------------|
 | Change extension name | `manifest.json` |
-| Update popup UI | `src/ui/popup.html` |
-| Update popup logic | `src/ui/popup.js` |
-| Update marketplace page | `src/ui/options.html` |
+| Update popup UI | `src/ui/PopupApp.jsx` |
+| Update options page | `src/ui/OptionsApp.jsx` |
+| Add reusable component | `src/ui/components/` |
 | Modify API methods | `src/api/marketplace.js` |
-| Change colors/styles | `assets/styles/mineshare.css` |
+| Change colors/styles | `src/ui/styles.css` |
 | Update data collection | `src/background.js` |
 | Modify page tracking | `src/content_script.js` |
 | Change icons | `assets/icons/` |
-| Update documentation | `docs/` or `README.md` |
+| Update build config | `vite.config.js` or `build-extension.js` |
 
 ## 🧹 Maintenance
 
-### Backup Files:
-- All backup files (`.backup`, `*-old.*`, `*_old.*`) are ignored via `.gitignore`
-- Safe to create temporary backups during development
+### Clean Build:
+```bash
+pnpm run clean && pnpm run build
+```
 
-### Adding New Files:
-- **UI components**: Add to `src/ui/`
-- **APIs/utilities**: Add to `src/api/`
-- **Assets**: Add to appropriate `assets/` subfolder
-- **Documentation**: Add to `docs/`
+### Adding New Components:
+1. Create `.jsx` file in `src/ui/components/`
+2. Import and use in `PopupApp.jsx` or `OptionsApp.jsx`
+3. Rebuild
+
+### Adding New Dependencies:
+```bash
+pnpm add <package-name>
+pnpm add -D <dev-package-name>
+```
 
 ### Removing Files:
-Always update `manifest.json` if removing files that are referenced there.
+- Always rebuild after removing files
+- Update `manifest.json` if removing referenced files
+- Update imports in React components
+
+## 📦 Build & Distribution
+
+For packaging the extension:
+
+```bash
+# Build for production
+pnpm run build
+
+# Create distribution zip
+cd dist
+zip -r ../mineshare-v1.0.0.zip . -x "*.map"
+cd ..
+```
 
 ---
 
-**Last Updated**: November 9, 2025  
-**Structure Version**: 2.0 (Organized)
+**Last Updated**: November 10, 2025  
+**Structure Version**: 3.0 (React + Vite)
