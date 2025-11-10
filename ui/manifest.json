@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "MineShare - Privacy-First Data Trading",
-  "description": "Collect, manage, and trade your browsing data securely. Privacy-preserving data marketplace with blockchain integration.",
+  "name": "MineShare - Privacy-First Data Collection",
+  "description": "Collect and manage your browsing data securely with privacy-preserving data collection.",
   "version": "1.0.0",
   "icons": {
     "16": "assets/icons/new icons/favicon-16x16.png",

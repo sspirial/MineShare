@@ -1,25 +1,33 @@
-# MineShare UI Workspace
+# MineShare Browser Extension
 
-This repository root only contains `.gitignore`, the main `README.md`, and the `ui/` folder. All functional code (frontend + backend extension logic + build tooling) lives inside `ui/`.
+A lightweight Chrome extension for collecting browsing activity data in a privacy-preserving manner.
 
-## 🔧 Contents of `ui/`
+## 🎯 Purpose
+
+This extension collects browsing data with privacy protections:
+- Hashed URLs (never stores plain URLs)
+- Page titles, time tracking, interactions
+- User-controlled data collection categories
+- Local storage only
+
+## 🔧 Structure
 ```
 ui/
-├── assets/              # Icons & static style assets
-├── components/          # Reusable React components
-├── pages/               # Page-level React apps + HTML templates
-├── src/                 # Extension core (background, content script, APIs)
-├── styles/              # Global CSS
-├── docs/                # Internal documentation
+├── assets/              # Icons & static assets
+├── src/
+│   ├── components/      # React components (Header, StatusMessage)
+│   ├── pages/           # Popup & Options pages
+│   ├── api/             # Data aggregation API
+│   ├── background.js    # Background service worker
+│   └── content_script.js # Data collection script
 ├── dist/                # Build output (generated)
 ├── manifest.json        # Chrome extension manifest
 ├── package.json         # Dependencies & scripts
 ├── build-extension.js   # Post-build processing
-├── vite.config.js       # Vite configuration
+└── vite.config.js       # Vite configuration
 ```
 
 ## 🚀 Development
-From the repository root:
 ```bash
 cd ui
 pnpm install
@@ -34,51 +42,41 @@ pnpm run build:watch    # Rebuild on changes
 4. Click "Load unpacked"
 5. Select `ui/dist/`
 
-## 📂 Key Entry Points
+## 📂 Key Files
 | Purpose | File |
 |---------|------|
-| Popup React App | `pages/popup-main.jsx` -> `PopupApp.jsx` |
-| Options React App | `pages/options-main.jsx` -> `OptionsApp.jsx` |
+| Popup Interface | `pages/PopupApp.jsx` |
+| Options Page | `pages/OptionsApp.jsx` |
 | Background Worker | `src/background.js` |
 | Content Script | `src/content_script.js` |
-| APIs | `src/api/*.js` |
+| Data API | `src/api/data_api.js` |
 | Manifest | `manifest.json` |
 
-## 🔐 Authentication & Wallet Flow
-Implemented in:
-- `components/SplashScreen.jsx`
-- `components/WalletConnect.jsx`
-- Integrated in `pages/PopupApp.jsx` & `pages/OptionsApp.jsx`
+## 🔐 Privacy Features
+- URLs are hashed (SHA-256) before storage
+- No keystrokes or clipboard data collected
+- Input fields and sensitive areas excluded
+- User controls what categories to collect
+- All data stored locally in browser
+
+## 🗃 Data Storage
+Uses `chrome.storage.local` with keys:
+- `activity_events_v1` - Collected browsing events
+- `collector_prefs` - User preferences
 
 ## 🧪 Common Tasks
 ```bash
 pnpm run clean          # Remove dist
+pnpm run build          # Build extension
 pnpm add <pkg>          # Add dependency
-pnpm add -D <pkg>       # Add dev dependency
 ```
 
-## 🛠 Adjusting Build
-- Change HTML inputs: `vite.config.js`
-- Post-build HTML/asset processing: `build-extension.js`
-- Output directory: `dist/`
-
-## 🗃 Data Storage
-Uses `chrome.storage.local` with keys:
-- `activity_events_v1`
-- `collector_prefs`
-- `walrus_config_v1`
-
-## ✅ Checklist Before Commit
-- Build passes (`pnpm run build`)
-- Manifest paths still valid
-- No unused files left in root
-
-## 📄 More Docs
-See:
-- `docs/AUTHENTICATION_FLOW.md`
-- `docs/REORGANIZATION.md`
-- `STRUCTURE.md`
-- `UI_REFERENCE.md`
+## ✅ Features
+- **Data Collection Settings**: Enable/disable collection globally or by category
+- **Storage Management**: View and delete collected data by domain
+- **Privacy Controls**: Full user control over what gets collected
+- **Storage Info**: Real-time storage usage statistics
 
 ---
-Happy hacking inside `ui/`! 🎉
+
+Happy hacking! 🎉

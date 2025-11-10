@@ -1,4 +1,4 @@
-import { copyFile, mkdir, cp, readFile, writeFile } from 'fs/promises';
+import { copyFile, mkdir, cp, readFile, writeFile, rm } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -36,14 +36,6 @@ async function postBuild() {
   // Copy API files
   console.log('Copying API files...');
   await copyFile(
-    join(__dirname, 'src/api/marketplace.js'),
-    join(distDir, 'src/api/marketplace.js')
-  );
-  await copyFile(
-    join(__dirname, 'src/api/walrus.js'),
-    join(distDir, 'src/api/walrus.js')
-  );
-  await copyFile(
     join(__dirname, 'src/api/data_api.js'),
     join(distDir, 'src/api/data_api.js')
   );
@@ -59,27 +51,26 @@ async function postBuild() {
     join(distDir, 'manifest.json')
   );
   
-  // Rename HTML files and inject API scripts
+  // Rename HTML files
   console.log('Processing HTML files...');
   try {
     // Process popup.html
-    let popupHtml = await readFile(join(distDir, 'src/pages/popup-new.html'), 'utf-8');
-    // Inject API scripts before the React app script
-    popupHtml = popupHtml.replace(
-      '<script type="module" crossorigin',
-      '<script src="../api/walrus.js"></script>\n    <script src="../api/marketplace.js"></script>\n    <script type="module" crossorigin'
+    await copyFile(
+      join(distDir, 'src/pages/popup.html'),
+      join(distDir, 'pages/popup.html')
     );
-    await writeFile(join(distDir, 'pages/popup.html'), popupHtml);
     
     // Process options.html
-    let optionsHtml = await readFile(join(distDir, 'src/pages/options-new.html'), 'utf-8');
-    optionsHtml = optionsHtml.replace(
-      '<script type="module" crossorigin',
-      '<script src="../api/walrus.js"></script>\n    <script src="../api/marketplace.js"></script>\n    <script type="module" crossorigin'
+    await copyFile(
+      join(distDir, 'src/pages/options.html'),
+      join(distDir, 'pages/options.html')
     );
-    await writeFile(join(distDir, 'pages/options.html'), optionsHtml);
     
     console.log('HTML files processed successfully');
+    
+    // Clean up intermediate HTML files from dist/src/pages
+    console.log('Cleaning up intermediate files...');
+    await rm(join(distDir, 'src/pages'), { recursive: true, force: true });
   } catch (err) {
     console.error('Error processing HTML files:', err.message);
   }

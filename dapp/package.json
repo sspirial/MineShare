@@ -1,19 +1,18 @@
 {
-  "name": "mineshare",
+  "name": "mineshare-marketplace-dapp",
   "version": "1.0.0",
+  "description": "MineShare Marketplace - Decentralized data trading platform",
   "type": "module",
   "scripts": {
-    "build": "vite build && pnpm run post-build",
-    "build:watch": "vite build --watch",
-    "post-build": "node build-extension.js",
-    "clean": "rm -rf dist"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@mysten/dapp-kit": "^0.19.8",
+    "@mysten/dapp-kit": "^0.14.0",
     "@mysten/sui": "^1.44.0",
-    "@mysten/wallet-standard": "^0.19.6",
     "@mysten/walrus": "^0.8.3",
-    "@tanstack/react-query": "^5.90.7",
+    "@tanstack/react-query": "^5.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
@@ -22,5 +21,6 @@
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.2.1",
     "vite": "^5.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.17.1"
 }

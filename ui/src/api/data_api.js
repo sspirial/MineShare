@@ -1,8 +1,7 @@
 // Helper module: aggregation and anonymized export API for collected activity events
-// This script is loaded into the background service worker via importScripts().
-// It defines a function `getAggregatedData(events, config)` which returns anonymized, aggregated results.
+// This script can be loaded via importScripts() or as an ES module
 
-function getAggregatedData(events, cfg) {
+export function getAggregatedData(events, cfg) {
   // produce per-domain aggregates: visit_count, total_time_ms, avg_time_ms, click_count, max_scroll, topKeywords, categories
   const perDomain = Object.create(null);
 
@@ -46,6 +45,10 @@ function getAggregatedData(events, cfg) {
   return {summary: overall, domains: result.byDomain};
 }
 
-// Make available globally when importScripts loads this file
-// Note: importScripts executes in the global scope of the worker, so `getAggregatedData` becomes available to background.js
-this.getAggregatedData = getAggregatedData;
+// For backward compatibility with importScripts in background.js
+if (typeof self !== 'undefined' && typeof self.importScripts === 'function') {
+  self.getAggregatedData = getAggregatedData;
+}
+
+// Default export for ES modules
+export default getAggregatedData;

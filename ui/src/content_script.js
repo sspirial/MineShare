@@ -1,59 +1,10 @@
-// Content script: injects a toggleable overlay and responds to messages from the popup
+// Content script: collects allowed interaction signals
 (function (){
   // Keep original overlay behavior but also collect allowed interaction signals.
-  const OVERLAY_ID = 'sample_extension_overlay_v1';
 
   // ensure we don't run multiple times
   if (window.__sample_extension_overlay_setup) return;
   window.__sample_extension_overlay_setup = true;
-
-  function createOverlay() {
-    if (document.getElementById(OVERLAY_ID)) return;
-    const o = document.createElement('div');
-    o.id = OVERLAY_ID;
-    Object.assign(o.style, {
-      position: 'fixed',
-      inset: '0',
-      background: 'rgba(0,0,0,0.5)',
-      zIndex: '2147483647',
-      display: 'none',
-      pointerEvents: 'auto'
-    });
-    document.documentElement.appendChild(o);
-  }
-
-  function isVisible() {
-    const o = document.getElementById(OVERLAY_ID);
-    return !!o && getComputedStyle(o).display !== 'none';
-  }
-
-  function setVisible(visible) {
-    const o = document.getElementById(OVERLAY_ID);
-    if (!o) return false;
-    o.style.display = visible ? 'block' : 'none';
-    return visible;
-  }
-
-  function toggle() {
-    const current = isVisible();
-    return setVisible(!current);
-  }
-
-  // initial injection
-  createOverlay();
-
-  // message listener for popup -> content script communication
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (!message || !message.type) return;
-    if (message.type === 'toggle-overlay') {
-      const visible = toggle();
-      sendResponse({visible});
-    } else if (message.type === 'get-overlay-state') {
-      sendResponse({visible: isVisible()});
-    }
-    // keep synchronous response
-    return true;
-  });
 
   // -------------------- Activity collection (allowed signals only) --------------------
   // Helpers that avoid input, textarea, select, and contenteditable elements
@@ -81,8 +32,8 @@
     try {
       const target = ev.target;
       if (!target) return;
-      // ignore clicks inside protected inputs or on overlays
-      if (isProtectedElement(target) || target.closest && target.closest('#' + OVERLAY_ID)) return;
+      // ignore clicks inside protected inputs
+      if (isProtectedElement(target)) return;
 
       // build a coarse descriptor (tag and classes) without any text from inputs
       const desc = {tag: target.tagName, classes: target.className ? String(target.className).split(/\s+/).slice(0,3) : []};
