@@ -106,16 +106,26 @@ move/
 - No accidental sensitive data commits
 - Faster git operations
 
-### 6. ✅ Root Package.json
+### 6. ✅ Root Package.json + PNPM Workspace
 **Created**: Workspace-level package management
 
+**Files**:
+- `package.json` - Workspace scripts
+- `pnpm-workspace.yaml` - PNPM workspace configuration
+
+```yaml
+# pnpm-workspace.yaml
+packages:
+  - 'ui'
+  - 'dapp'
+```
+
+**Scripts**:
 ```json
 {
-  "name": "mineshare-monorepo",
-  "workspaces": ["ui", "dapp"],
   "scripts": {
-    "build:all": "pnpm run build:ui && pnpm run build:dapp",
-    "dev:all": "concurrently \"pnpm run dev:ui\" \"pnpm run dev:dapp\"",
+    "build:all": "pnpm --filter ui run build && pnpm --filter dapp run build",
+    "dev:all": "concurrently \"pnpm --filter ui run build:watch\" \"pnpm --filter dapp run dev\"",
     "clean:all": "...",
     "build:contracts": "..."
   }
@@ -123,8 +133,9 @@ move/
 ```
 
 **Benefits**:
-- Single command to build everything
+- Single `pnpm install` for all packages
 - Workspace-aware dependency management
+- Shared dependencies hoisted to root
 - Easier for new developers
 - CI/CD friendly
 
@@ -183,6 +194,12 @@ MineShare/
 
 ## How to Use the New Structure
 
+### Install Dependencies
+```bash
+# One command installs everything (workspace-aware)
+pnpm install
+```
+
 ### Build Everything
 ```bash
 pnpm run build:all
@@ -190,7 +207,7 @@ pnpm run build:all
 
 ### Develop Concurrently
 ```bash
-pnpm run dev:all
+pnpm run dev:all  # Runs both ui watch mode and dapp dev server
 ```
 
 ### Update Configuration

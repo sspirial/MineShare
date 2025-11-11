@@ -89,8 +89,8 @@ Shared configuration and utilities:
 ### Installation
 
 ```bash
-# Install all dependencies
-pnpm run install:all
+# Install all workspace dependencies at once
+pnpm install
 
 # Or install individually
 cd ui && pnpm install
@@ -100,7 +100,7 @@ cd ../dapp && pnpm install
 ### Development
 
 ```bash
-# Build everything
+# Build everything (uses pnpm workspace)
 pnpm run build:all
 
 # Or work on specific parts
@@ -111,6 +111,7 @@ pnpm run build:contracts  # Build smart contracts
 # Development mode
 pnpm run dev:ui        # Watch mode for extension
 pnpm run dev:dapp      # Dev server for dApp
+pnpm run dev:all       # Both in parallel with concurrently
 ```
 
 ### Load the Browser Extension

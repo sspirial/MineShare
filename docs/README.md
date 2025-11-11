@@ -6,6 +6,8 @@ This folder contains all project documentation.
 
 ### Getting Started
 - **[QUICKSTART.md](QUICKSTART.md)** - Fast setup guide for developers
+- **[ORGANIZATION.md](ORGANIZATION.md)** - Codebase organization summary
+- **[VERIFICATION.md](VERIFICATION.md)** - Build verification and testing
 
 ### Architecture & Design
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture and components
@@ -16,29 +18,25 @@ This folder contains all project documentation.
 - **[DEPLOY_CONTRACT.md](DEPLOY_CONTRACT.md)** - Deploy smart contracts to Sui
 - **[CONTRACT_DEPLOYED.md](CONTRACT_DEPLOYED.md)** - Current deployment details
 
-### Integration & Features
+### Integration & Maintenance
 - **[INTEGRATION.md](INTEGRATION.md)** - System integration details
-- **[NEW_FLOW.md](NEW_FLOW.md)** - New user flow documentation
-- **[EXPORT_FLOW_FIX.md](EXPORT_FLOW_FIX.md)** - Data export flow fixes
-
-### Maintenance
 - **[TESTING_GUIDE.md](TESTING_GUIDE.md)** - Testing procedures
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Common issues and solutions
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Implementation notes
-
-### Technical Details
-- **[TRANSACTION_API_FIX.md](TRANSACTION_API_FIX.md)** - Transaction API fixes
-- **[WALRUS_ISSUE.md](WALRUS_ISSUE.md)** - Walrus storage issues and solutions
 
 ## Documentation Structure
 
 ```
 docs/
+├── README.md                  # This file - documentation index
 ├── QUICKSTART.md              # Start here!
+├── ORGANIZATION.md            # Codebase organization
+├── VERIFICATION.md            # Build verification
 ├── ARCHITECTURE.md            # System design
+├── INTEGRATION.md             # Integration guide
 ├── DEPLOY_CONTRACT.md         # Smart contract deployment
 ├── CONTRACT_DEPLOYED.md       # Deployment info
-├── INTEGRATION.md             # Integration guide
+├── DESIGN_SYSTEM_IMPLEMENTATION.md  # UI design system
+├── MineShare Design System.md       # Design tokens
 ├── TESTING_GUIDE.md           # Testing procedures
 └── TROUBLESHOOTING.md         # Problem solving
 ```

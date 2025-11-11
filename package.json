@@ -10,26 +10,22 @@
   },
   "scripts": {
     "dev": "pnpm run dev:all",
-    "dev:all": "concurrently \"pnpm run dev:ui\" \"pnpm run dev:dapp\"",
-    "dev:ui": "cd ui && pnpm run build:watch",
-    "dev:dapp": "cd dapp && pnpm run dev",
+    "dev:all": "concurrently \"pnpm --filter mineshare run build:watch\" \"pnpm --filter mineshare-marketplace-dapp run dev\"",
+    "dev:ui": "pnpm --filter mineshare run build:watch",
+    "dev:dapp": "pnpm --filter mineshare-marketplace-dapp run dev",
     "build": "pnpm run build:all",
-    "build:all": "pnpm run build:ui && pnpm run build:dapp",
-    "build:ui": "cd ui && pnpm run build",
-    "build:dapp": "cd dapp && pnpm run build",
+    "build:all": "pnpm --filter mineshare run build && pnpm --filter mineshare-marketplace-dapp run build",
+    "build:ui": "pnpm --filter mineshare run build",
+    "build:dapp": "pnpm --filter mineshare-marketplace-dapp run build",
     "build:contracts": "cd move/mineshare && sui move build",
     "clean": "pnpm run clean:all",
-    "clean:all": "pnpm run clean:ui && pnpm run clean:dapp && pnpm run clean:contracts",
-    "clean:ui": "cd ui && pnpm run clean",
-    "clean:dapp": "cd dapp && rm -rf dist",
+    "clean:all": "pnpm --filter mineshare run clean && pnpm --filter mineshare-marketplace-dapp run clean && pnpm run clean:contracts",
+    "clean:ui": "pnpm --filter mineshare run clean",
+    "clean:dapp": "pnpm --filter mineshare-marketplace-dapp run clean || rm -rf dapp/dist",
     "clean:contracts": "cd move/mineshare && rm -rf build",
-    "install:all": "pnpm install && cd ui && pnpm install && cd ../dapp && pnpm install",
+    "install:all": "pnpm install -r",
     "test:contracts": "cd move/mineshare && sui move test"
   },
-  "workspaces": [
-    "ui",
-    "dapp"
-  ],
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
