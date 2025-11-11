@@ -1,0 +1,41 @@
+{
+  "name": "mineshare-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MineShare - Privacy-First Data Collection & Marketplace",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sspirial/MineShare.git"
+  },
+  "scripts": {
+    "dev": "pnpm run dev:all",
+    "dev:all": "concurrently \"pnpm run dev:ui\" \"pnpm run dev:dapp\"",
+    "dev:ui": "cd ui && pnpm run build:watch",
+    "dev:dapp": "cd dapp && pnpm run dev",
+    "build": "pnpm run build:all",
+    "build:all": "pnpm run build:ui && pnpm run build:dapp",
+    "build:ui": "cd ui && pnpm run build",
+    "build:dapp": "cd dapp && pnpm run build",
+    "build:contracts": "cd move/mineshare && sui move build",
+    "clean": "pnpm run clean:all",
+    "clean:all": "pnpm run clean:ui && pnpm run clean:dapp && pnpm run clean:contracts",
+    "clean:ui": "cd ui && pnpm run clean",
+    "clean:dapp": "cd dapp && rm -rf dist",
+    "clean:contracts": "cd move/mineshare && rm -rf build",
+    "install:all": "pnpm install && cd ui && pnpm install && cd ../dapp && pnpm install",
+    "test:contracts": "cd move/mineshare && sui move test"
+  },
+  "workspaces": [
+    "ui",
+    "dapp"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  }
+}

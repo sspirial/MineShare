@@ -2,9 +2,11 @@
  * Walrus API - Upload and download encrypted data to/from Walrus decentralized storage
  */
 
-// Walrus aggregator endpoints (testnet)
-const WALRUS_PUBLISHER = 'https://publisher.walrus-testnet.walrus.space';
-const WALRUS_AGGREGATOR = 'https://aggregator.walrus-testnet.walrus.space';
+import { CONFIG } from '../config.js';
+
+// Walrus endpoints from shared config
+const WALRUS_PUBLISHER = CONFIG.WALRUS_PUBLISHER;
+const WALRUS_AGGREGATOR = CONFIG.WALRUS_AGGREGATOR;
 
 /**
  * Simple XOR encryption for demo purposes

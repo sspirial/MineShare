@@ -5,16 +5,17 @@
 
 import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
+import { CONFIG } from '../config.js';
 
-// Contract configuration
-export const PACKAGE_ID = '0xa220e3bf27fe8c285d1995fdc7d498ebe18650733c8d64ea436db244ab65fb89';
-export const MODULE_NAME = 'marketplace';
-export const NETWORK = 'testnet';
+// Contract configuration from shared config
+export const PACKAGE_ID = CONFIG.PACKAGE_ID;
+export const MODULE_NAME = CONFIG.MODULE_NAME;
+export const NETWORK = CONFIG.NETWORK;
 
 // Initialize Sui client with proper URL
 export function getSuiClient() {
   return new SuiClient({ 
-    url: getFullnodeUrl('testnet')
+    url: getFullnodeUrl(NETWORK)
   });
 }
 
