@@ -49,6 +49,7 @@ const PopupApp = () => {
       };
 
       // Store the export data in a special key that the dApp can access
+      // Use both chrome.storage (for extension) and prepare for cross-context transfer
       await chrome.storage.local.set({ 
         pending_export: datasetToExport,
         export_timestamp: Date.now()
@@ -57,8 +58,17 @@ const PopupApp = () => {
       showStatus('success', 'Data prepared! Opening marketplace...');
 
       // Open dApp with a flag to indicate there's data to export
+      // We'll inject the data into the page via content script
       setTimeout(() => {
-        chrome.tabs.create({ url: `${CONFIG.DAPP_URL}?export=pending` });
+        chrome.tabs.create({ 
+          url: `${CONFIG.DAPP_URL}?export=pending`,
+          active: true 
+        }, (tab) => {
+          // Store the export data with tab ID for the content script to inject
+          chrome.storage.local.set({
+            [`pending_export_tab_${tab.id}`]: datasetToExport
+          });
+        });
       }, 1000);
 
     } catch (error) {
@@ -158,7 +168,12 @@ const PopupApp = () => {
     <div style={{ width: '400px', maxHeight: '600px', overflow: 'hidden' }}>
       <Header />
       
-      <div style={{ padding: '16px', maxHeight: '516px', overflowY: 'auto', background: '#FAFAFA' }}>
+      <div style={{ 
+        padding: 'var(--spacing-md)', 
+        maxHeight: '516px', 
+        overflowY: 'auto', 
+        background: 'var(--color-background-light)' 
+      }}>
         {statusMessage && (
           <StatusMessage 
             type={statusMessage.type} 
@@ -170,53 +185,92 @@ const PopupApp = () => {
         <div>
           <h3>Data Collection Settings</h3>
 
-          <div style={{ marginBottom: '14px' }}>
+          <div style={{ marginBottom: 'var(--spacing-md)' }}>
             <label style={{
-              display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer',
-              padding: '10px', background: 'var(--gold-light)',
-              borderRadius: 'var(--border-radius-sm)', border: '2px solid var(--gold)'
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 'var(--spacing-sm)', 
+              cursor: 'pointer',
+              padding: 'var(--spacing-sm)', 
+              background: 'rgba(255, 184, 0, 0.08)',
+              borderRadius: 'var(--radius-sm)', 
+              border: '2px solid var(--color-brand-secondary)'
             }}>
               <input 
-                type="checkbox" checked={globalPref}
+                type="checkbox" 
+                checked={globalPref}
                 onChange={(e) => setGlobalPref(e.target.checked)}
-                style={{ width: '20px', height: '20px', accentColor: 'var(--gold)' }}
+                style={{ 
+                  width: '20px', 
+                  height: '20px', 
+                  accentColor: 'var(--color-brand-secondary)',
+                  cursor: 'pointer'
+                }}
               />
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--purple)' }}>
+              <span style={{ 
+                fontSize: 'var(--font-size-sm)', 
+                fontWeight: 'var(--font-weight-semibold)', 
+                color: 'var(--color-brand-primary)' 
+              }}>
                 Enable data collection
               </span>
             </label>
           </div>
 
           <h4>Categories</h4>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '14px' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: '1fr 1fr', 
+            gap: 'var(--spacing-2xs)', 
+            marginBottom: 'var(--spacing-md)' 
+          }}>
             {categories.map(cat => (
               <label key={cat.key} style={{
-                display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px',
-                fontWeight: 400, textTransform: 'none', letterSpacing: 0,
-                color: 'var(--dark)', cursor: 'pointer', padding: '6px',
-                borderRadius: 'var(--border-radius-sm)', transition: 'background 0.2s'
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 'var(--spacing-xs)', 
+                fontSize: 'var(--font-size-xs)',
+                fontWeight: 'var(--font-weight-regular)', 
+                textTransform: 'none', 
+                letterSpacing: 0,
+                color: 'var(--color-text-default)', 
+                cursor: 'pointer', 
+                padding: 'var(--spacing-2xs)',
+                borderRadius: 'var(--radius-sm)', 
+                transition: 'background var(--transition-fast)'
               }}>
                 <input 
-                  type="checkbox" checked={!!categoryPrefs[cat.key]}
+                  type="checkbox" 
+                  checked={!!categoryPrefs[cat.key]}
                   onChange={(e) => setCategoryPrefs({...categoryPrefs, [cat.key]: e.target.checked})}
-                  style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--gold)' }}
+                  style={{ 
+                    width: '18px', 
+                    height: '18px', 
+                    cursor: 'pointer', 
+                    accentColor: 'var(--color-brand-secondary)' 
+                  }}
                 />
                 {cat.label}
               </label>
             ))}
           </div>
 
-          <div className="grid-2" style={{ marginBottom: '14px' }}>
+          <div className="grid-2" style={{ marginBottom: 'var(--spacing-md)', gap: 'var(--spacing-xs)' }}>
             <button className="btn-primary" onClick={handleSavePrefs}>Save Settings</button>
             <button className="btn-danger" onClick={handleClearData}>Clear Data</button>
           </div>
 
           {/* Export to Marketplace */}
-          <div style={{ marginTop: '20px', padding: '12px', background: 'var(--gold-light)', 
-            borderRadius: 'var(--border-radius-sm)', border: '2px solid var(--gold)' }}>
+          <div style={{ 
+            marginTop: 'var(--spacing-lg)', 
+            padding: 'var(--spacing-sm)', 
+            background: 'rgba(255, 184, 0, 0.08)', 
+            borderRadius: 'var(--radius-sm)', 
+            border: '2px solid var(--color-brand-secondary)' 
+          }}>
             <h4 style={{ marginTop: 0 }}>🌐 Export to Marketplace</h4>
             
-            <p style={{ fontSize: '13px', marginBottom: '10px' }}>
+            <p style={{ fontSize: 'var(--font-size-xs)', marginBottom: 'var(--spacing-sm)' }}>
               Export your collected data to list on the marketplace
             </p>
             <button 
@@ -227,29 +281,59 @@ const PopupApp = () => {
             >
               {isExporting ? 'Preparing...' : '📤 Export to Marketplace'}
             </button>
-            <p style={{ fontSize: '11px', color: '#666', marginTop: '8px' }}>
+            <p style={{ 
+              fontSize: 'var(--font-size-xs)', 
+              color: 'var(--color-text-muted)', 
+              marginTop: 'var(--spacing-xs)' 
+            }}>
               Opens the marketplace where you can upload and list your data
             </p>
           </div>
 
-          <div style={{ fontSize: '12px', color: '#666', margin: '14px 0', padding: '10px',
-            background: 'var(--white)', borderRadius: 'var(--border-radius-sm)', 
-            border: '2px solid var(--neutral)' }}>
+          <div style={{ 
+            fontSize: 'var(--font-size-xs)', 
+            color: 'var(--color-text-muted)', 
+            margin: 'var(--spacing-md) 0', 
+            padding: 'var(--spacing-sm)',
+            background: 'var(--color-background-default)', 
+            borderRadius: 'var(--radius-sm)', 
+            border: '2px solid var(--color-border-default)' 
+          }}>
             {storageInfo}
           </div>
 
-          <div style={{ maxHeight: '180px', overflow: 'auto', border: '2px solid var(--neutral)',
-            background: 'white', padding: '8px', borderRadius: 'var(--border-radius-sm)' }}>
+          <div style={{ 
+            maxHeight: '180px', 
+            overflow: 'auto', 
+            border: '2px solid var(--color-border-default)',
+            background: 'var(--color-background-default)', 
+            padding: 'var(--spacing-xs)', 
+            borderRadius: 'var(--radius-sm)' 
+          }}>
             {domainList.length === 0 ? (
-              <div>No collected events.</div>
+              <div style={{ 
+                textAlign: 'center', 
+                padding: 'var(--spacing-md)', 
+                color: 'var(--color-text-muted)' 
+              }}>No collected events.</div>
             ) : (
               domainList.map(({ domain, count }) => (
-                <div key={domain} style={{ display: 'flex', justifyContent: 'space-between',
-                  alignItems: 'center', padding: '8px', borderBottom: '1px solid var(--neutral)',
-                  transition: 'background 0.2s' }}>
-                  <div>{domain} — {count} events</div>
-                  <button onClick={() => handleDeleteDomain(domain)}
-                    style={{ fontSize: '11px', padding: '4px 8px' }}>
+                <div key={domain} style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center', 
+                  padding: 'var(--spacing-xs)', 
+                  borderBottom: '1px solid var(--color-border-default)',
+                  transition: 'background var(--transition-fast)'
+                }}>
+                  <div style={{ fontSize: 'var(--font-size-xs)' }}>{domain} — {count} events</div>
+                  <button 
+                    onClick={() => handleDeleteDomain(domain)}
+                    className="btn-danger"
+                    style={{ 
+                      fontSize: 'var(--font-size-xs)', 
+                      padding: 'var(--spacing-3xs) var(--spacing-xs)' 
+                    }}>
                     Delete
                   </button>
                 </div>

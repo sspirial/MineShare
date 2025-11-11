@@ -108,8 +108,8 @@ module mineshare::marketplace {
         let listing_id = object::uid_to_inner(&listing.id);
         event::emit(ListingCreated { listing_id });
 
-        // Transfer listing to seller
-        transfer::transfer(listing, seller);
+        // Share listing object so buyers can interact with it
+        transfer::share_object(listing);
     }
 
     /// Buy a listing: buyer provides a Coin<SUI> `payment` via entry function.

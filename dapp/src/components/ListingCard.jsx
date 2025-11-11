@@ -26,7 +26,7 @@ function ListingCard({ listing, isOwner, currentAccount, onPurchase, onCollect, 
       const buyResult = await buyListing(
         listing.id,
         listing.price,
-        { signAndExecuteTransactionBlock: signAndExecuteTransaction },
+        signAndExecuteTransaction,
         currentAccount.address
       );
 
@@ -56,7 +56,7 @@ function ListingCard({ listing, isOwner, currentAccount, onPurchase, onCollect, 
       // Claim the dataset
       const claimResult = await claimDataset(
         listing.id,
-        { signAndExecuteTransactionBlock: signAndExecuteTransaction },
+        signAndExecuteTransaction,
         currentAccount.address
       );
 
@@ -91,7 +91,7 @@ function ListingCard({ listing, isOwner, currentAccount, onPurchase, onCollect, 
 
       const result = await collectProceeds(
         listing.id,
-        { signAndExecuteTransactionBlock: signAndExecuteTransaction }
+        signAndExecuteTransaction
       );
 
       setMessage('✅ Proceeds collected! Check your wallet.');

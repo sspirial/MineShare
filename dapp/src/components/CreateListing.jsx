@@ -25,37 +25,81 @@ function CreateListing({ currentAccount, onListingCreated }) {
       loadDatasets();
       checkForPendingExport();
     }
+    
+    // Listen for data ready event from extension
+    const handleDataReady = (event) => {
+      console.log('MineShare data ready event received:', event.detail);
+      checkForPendingExport();
+    };
+    
+    window.addEventListener('mineshare_data_ready', handleDataReady);
+    
+    return () => {
+      window.removeEventListener('mineshare_data_ready', handleDataReady);
+    };
   }, [currentAccount]);
 
   const checkForPendingExport = async () => {
+    console.log('Checking for pending export...');
     // Check URL for export flag
     const params = new URLSearchParams(window.location.search);
+    console.log('URL params:', params.toString());
+    
     if (params.get('export') === 'pending') {
-      // Try to get data from extension
+      console.log('Export pending flag detected');
+      // Try to get data from localStorage (injected by content script)
       try {
-        // Access chrome.storage from the extension
-        if (window.chrome && chrome.storage) {
-          const data = await chrome.storage.local.get(['pending_export', 'export_timestamp']);
-          if (data.pending_export && data.export_timestamp) {
-            // Check if export is recent (within last 5 minutes)
-            const age = Date.now() - data.export_timestamp;
-            if (age < 5 * 60 * 1000) {
-              setPendingExportData(data.pending_export);
-              setMessage('✅ Data imported from extension! Click "Mint & List Dataset" below.');
-              
-              // Pre-fill some form data
-              const exportData = data.pending_export;
-              setFormData({
-                ...formData,
-                title: `Browsing Data - ${new Date(exportData.exportedAt).toLocaleDateString()}`,
-                description: `${exportData.summary?.totalDomains || 0} domains, ${exportData.summary?.totalEvents || 0} events`
-              });
-            }
+        const exportDataStr = window.localStorage.getItem('mineshare_pending_export');
+        const timestampStr = window.localStorage.getItem('mineshare_export_timestamp');
+        
+        console.log('localStorage check:', {
+          hasData: !!exportDataStr,
+          hasTimestamp: !!timestampStr,
+          dataLength: exportDataStr?.length
+        });
+        
+        if (exportDataStr && timestampStr) {
+          const exportData = JSON.parse(exportDataStr);
+          const timestamp = parseInt(timestampStr);
+          
+          console.log('Parsed export data:', {
+            exportedAt: exportData.exportedAt,
+            totalDomains: exportData.summary?.totalDomains,
+            totalEvents: exportData.summary?.totalEvents,
+            timestamp
+          });
+          
+          // Check if export is recent (within last 5 minutes)
+          const age = Date.now() - timestamp;
+          if (age < 5 * 60 * 1000) {
+            setPendingExportData(exportData);
+            setMessage('✅ Data imported from extension! Fill in details and click "Mint & List Dataset" below.');
+            
+            // Pre-fill some form data
+            setFormData({
+              ...formData,
+              title: `Browsing Data - ${new Date(exportData.exportedAt).toLocaleDateString()}`,
+              description: `${exportData.summary?.totalDomains || 0} domains, ${exportData.summary?.totalEvents || 0} events`
+            });
+            
+            console.log('✅ Successfully loaded pending export data');
+          } else {
+            console.warn('Export data expired, age:', age);
+            setMessage('⚠️ Export data expired. Please export again from the extension.');
+            // Clean up expired data
+            window.localStorage.removeItem('mineshare_pending_export');
+            window.localStorage.removeItem('mineshare_export_timestamp');
           }
+        } else {
+          console.log('No export data found in localStorage, waiting for extension...');
+          setMessage('⏳ Waiting for data from extension...');
         }
       } catch (error) {
-        console.log('Could not access extension storage:', error);
+        console.error('Could not access export data:', error);
+        setMessage('❌ Failed to load export data: ' + error.message);
       }
+    } else {
+      console.log('No export=pending flag in URL');
     }
   };
 
@@ -107,7 +151,7 @@ function CreateListing({ currentAccount, onListingCreated }) {
       const mintResult = await mintDataset(
         cidBytes,
         metadata,
-        { signAndExecuteTransactionBlock: signAndExecuteTransaction }
+        signAndExecuteTransaction
       );
 
       if (!mintResult.datasetId) {
@@ -119,7 +163,7 @@ function CreateListing({ currentAccount, onListingCreated }) {
       const listingResult = await createListing(
         mintResult.datasetId,
         parseFloat(formData.price),
-        { signAndExecuteTransactionBlock: signAndExecuteTransaction }
+        signAndExecuteTransaction
       );
 
       // Store encryption key for buyer access
@@ -129,10 +173,9 @@ function CreateListing({ currentAccount, onListingCreated }) {
         });
       }
 
-      // Clear pending export
-      if (window.chrome && chrome.storage) {
-        await chrome.storage.local.remove(['pending_export', 'export_timestamp']);
-      }
+      // Clear pending export from localStorage
+      window.localStorage.removeItem('mineshare_pending_export');
+      window.localStorage.removeItem('mineshare_export_timestamp');
       
       setPendingExportData(null);
 
@@ -187,9 +230,7 @@ function CreateListing({ currentAccount, onListingCreated }) {
       const result = await createListing(
         selectedDataset,
         parseFloat(formData.price),
-        {
-          signAndExecuteTransactionBlock: signAndExecuteTransaction
-        }
+        signAndExecuteTransaction
       );
 
       onListingCreated({

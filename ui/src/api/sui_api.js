@@ -7,7 +7,7 @@ import { Transaction } from '@mysten/sui/transactions';
 import { SuiClient } from '@mysten/sui/client';
 
 // Contract configuration
-export const PACKAGE_ID = '0x2cf73e2764bedfd840acd574a89ac4e3e34c77992a3565ed2da3853543dd9243';
+export const PACKAGE_ID = '0xa220e3bf27fe8c285d1995fdc7d498ebe18650733c8d64ea436db244ab65fb89';
 export const MODULE_NAME = 'marketplace';
 export const NETWORK = 'testnet';
 

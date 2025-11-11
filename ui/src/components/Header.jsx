@@ -3,22 +3,24 @@ import React from 'react';
 const Header = ({ title, logoSize = 24 }) => {
   return (
     <div className="header" style={{
-      background: 'linear-gradient(135deg, var(--gold) 0%, #FFC700 100%)',
-      padding: '16px',
+      background: 'linear-gradient(135deg, var(--color-brand-secondary) 0%, var(--color-secondary-hover) 100%)',
+      padding: 'var(--spacing-md)',
       textAlign: 'center',
-      boxShadow: '0 4px 12px rgba(255, 215, 0, 0.3)'
+      boxShadow: 'var(--shadow-gold-sm)',
+      borderBottom: '3px solid var(--color-brand-primary)'
     }}>
       <h1 className="logo" style={{
-        fontFamily: "'Poppins', sans-serif",
-        fontSize: '22px',
-        fontWeight: 700,
-        color: 'var(--purple)',
+        fontFamily: 'var(--font-family-header)',
+        fontSize: 'var(--font-size-2xl)',
+        fontWeight: 'var(--font-weight-bold)',
+        color: 'var(--color-brand-primary)',
         margin: 0,
         textShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: '8px'
+        gap: 'var(--spacing-xs)',
+        letterSpacing: '1px'
       }}>
         <img 
           className="logo-icon" 

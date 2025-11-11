@@ -1,17 +1,21 @@
+/* LISTING CARD COMPONENT - MineShare Design System */
+
 .listing-card {
-  background: white;
-  border-radius: 15px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  transition: all 0.3s ease;
+  background: var(--color-background-default);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: var(--spacing-md);
+  border: 2px solid var(--color-border-light);
 }
 
 .listing-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-brand-secondary);
 }
 
 .listing-header {
@@ -21,118 +25,168 @@
 }
 
 .data-type {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
+  background: var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  text-transform: capitalize;
+  padding: var(--spacing-2xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .status.listed {
-  background: #d4edda;
-  color: #155724;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .status.sold {
-  background: #f8d7da;
-  color: #721c24;
+  background: var(--color-error-light);
+  color: var(--color-error-dark);
 }
 
 .listing-title {
-  font-size: 1.25rem;
-  color: #333;
+  font-family: var(--font-family-header);
+  font-size: var(--font-size-xl);
+  color: var(--color-brand-primary);
   margin: 0;
+  letter-spacing: 0.5px;
 }
 
 .listing-description {
-  color: #666;
-  line-height: 1.6;
-  font-size: 0.9rem;
+  font-family: var(--font-family-body);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  font-size: var(--font-size-sm);
   flex: 1;
 }
 
 .listing-stats {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  padding: 1rem;
-  background: #f8f9fa;
-  border-radius: 10px;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-background-light) 0%, rgba(255, 184, 0, 0.05) 100%);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border-light);
 }
 
 .stat {
   display: flex;
   justify-content: space-between;
-  font-size: 0.9rem;
+  font-size: var(--font-size-sm);
 }
 
 .stat-label {
-  color: #666;
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
 }
 
 .stat-value {
-  color: #333;
-  font-weight: 500;
+  color: var(--color-text-default);
+  font-weight: var(--font-weight-semibold);
+  font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
 }
 
 .listing-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1rem;
-  border-top: 1px solid #eee;
+  padding-top: var(--spacing-md);
+  border-top: 2px solid var(--color-border-light);
 }
 
 .price {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--spacing-3xs);
 }
 
 .price-label {
-  font-size: 0.8rem;
-  color: #666;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .price-value {
-  font-size: 1.25rem;
-  font-weight: bold;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-family: var(--font-family-header);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-brand-secondary);
 }
 
 .purchase-btn {
-  padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: 500;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background: var(--color-brand-secondary);
+  color: var(--color-brand-primary);
+  border: 2px solid var(--color-brand-secondary);
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-semibold);
+  font-family: var(--font-family-body);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all var(--transition-base);
+  box-shadow: var(--shadow-gold-sm);
 }
 
-.purchase-btn:hover {
+.purchase-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  box-shadow: var(--shadow-gold-md);
+  background: var(--color-secondary-hover);
+}
+
+.purchase-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .owner-badge {
-  padding: 0.5rem 1rem;
-  background: #fff3cd;
-  color: #856404;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 500;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: linear-gradient(135deg, var(--color-warning-light) 0%, rgba(245, 158, 11, 0.2) 100%);
+  color: var(--color-warning-dark);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  border: 1px solid var(--color-warning);
+}
+
+.listing-message {
+  font-size: var(--font-size-xs);
+  padding: var(--spacing-xs);
+  margin: var(--spacing-xs) 0;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  font-weight: var(--font-weight-medium);
+}
+
+@media (max-width: 480px) {
+  .listing-card {
+    padding: var(--spacing-md);
+  }
+
+  .listing-title {
+    font-size: var(--font-size-lg);
+  }
+
+  .listing-footer {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .purchase-btn,
+  .owner-badge {
+    width: 100%;
+    text-align: center;
+  }
 }

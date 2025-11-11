@@ -22,7 +22,9 @@ function Marketplace() {
   const loadListings = async () => {
     try {
       setIsLoadingListings(true);
+      console.log('Loading listings from blockchain...');
       const blockchainListings = await getAllListings();
+      console.log('Fetched listings:', blockchainListings);
       setListings(blockchainListings);
     } catch (error) {
       console.error('Failed to load listings:', error);
@@ -38,6 +40,11 @@ function Marketplace() {
   const browseListings = currentAccount
     ? listings.filter(l => l.seller !== currentAccount.address && !l.sold)
     : listings.filter(l => !l.sold);
+  
+  console.log('Current account:', currentAccount?.address);
+  console.log('All listings:', listings);
+  console.log('My listings:', myListings);
+  console.log('Browse listings:', browseListings);
 
   const handleListingCreated = async (newListing) => {
     // Reload listings from blockchain

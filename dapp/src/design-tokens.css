@@ -1,0 +1,217 @@
+/**
+ * MineShare Design System - Design Tokens
+ * Version: 1.1
+ * Based on: MineShare Design System.md
+ * 
+ * This file contains all design tokens extracted from the MineShare logo
+ * and brand guidelines. Import this file before any component-specific styles.
+ */
+
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  /* ============================================
+     COLOR SYSTEM - Extracted from Logo
+     ============================================ */
+  
+  /* Primary Brand Colors */
+  --color-brand-primary: #5E17EB;        /* Dominant purple from logo background */
+  --color-brand-secondary: #FFB800;      /* Accent gold/yellow from fox + coin */
+  --color-brand-tertiary: #FFFFFF;       /* White from logotype text */
+  --color-coin: #FF9900;                 /* Coin glow/highlight accent */
+  
+  /* Background Colors */
+  --color-background-default: #FFFFFF;   /* Default light canvas */
+  --color-background-brand: #5E17EB;     /* Brand-aligned dark canvas */
+  --color-background-light: #F8F9FA;     /* Subtle light background */
+  --color-background-overlay: rgba(94, 23, 235, 0.95); /* Modal/overlay */
+  
+  /* Text Colors */
+  --color-text-default: #1A1A1A;         /* Primary dark text */
+  --color-text-inverse: #FFFFFF;         /* Light text on dark backgrounds */
+  --color-text-muted: #666666;           /* Secondary/muted text */
+  --color-text-disabled: #9CA3AF;        /* Disabled state text */
+  
+  /* Interactive State Colors (Primary) */
+  --color-primary-hover: #4A12B8;        /* Darker purple for hover */
+  --color-primary-active: #3F0E99;       /* Even darker for active state */
+  --color-primary-light: rgba(94, 23, 235, 0.12); /* Light tint for shadows */
+  
+  /* Interactive State Colors (Secondary) */
+  --color-secondary-hover: #CC9400;      /* Darker gold for hover */
+  --color-secondary-active: #B38300;     /* Even darker for active state */
+  --color-secondary-light: rgba(255, 184, 0, 0.15); /* Light tint */
+  
+  /* Functional Colors */
+  --color-success: #10B981;              /* Success/positive actions */
+  --color-success-light: #D4EDDA;        /* Success background */
+  --color-success-dark: #155724;         /* Success text */
+  
+  --color-warning: #F59E0B;              /* Warning states */
+  --color-warning-light: #FFF3E0;        /* Warning background */
+  --color-warning-dark: #E65100;         /* Warning text */
+  
+  --color-error: #EF4444;                /* Error/danger states */
+  --color-error-light: #FEE2E2;          /* Error background */
+  --color-error-dark: #991B1B;           /* Error text */
+  
+  --color-info: #3B82F6;                 /* Info states */
+  --color-info-light: #DBEAFE;           /* Info background */
+  --color-info-dark: #1E40AF;            /* Info text */
+  
+  /* Border & Divider Colors */
+  --color-border-default: #E5E7EB;       /* Default border */
+  --color-border-light: #F3F4F6;         /* Lighter border */
+  --color-border-dark: #D1D5DB;          /* Darker border */
+  
+  /* ============================================
+     TYPOGRAPHY SYSTEM
+     ============================================ */
+  
+  /* Font Families */
+  --font-family-header: 'Bebas Neue', 'Arial Narrow', sans-serif;
+  --font-family-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  
+  /* Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  
+  /* Type Scale (Major Third - 1.25 ratio) */
+  --font-size-xs: 0.8rem;       /* 12.8px - Captions, footnotes */
+  --font-size-sm: 0.875rem;     /* 14px - Small text */
+  --font-size-base: 1rem;       /* 16px - Body text */
+  --font-size-lg: 1.125rem;     /* 18px - Large body */
+  --font-size-xl: 1.25rem;      /* 20px - Small headings */
+  --font-size-2xl: 1.563rem;    /* 25px - H4 */
+  --font-size-3xl: 1.953rem;    /* 31.25px - H3 */
+  --font-size-4xl: 2.441rem;    /* 39px - H2 */
+  --font-size-5xl: 3.052rem;    /* 48.8px - H1 */
+  --font-size-6xl: 3.815rem;    /* 61px - Hero titles */
+  
+  /* Line Heights */
+  --line-height-tight: 1.2;
+  --line-height-snug: 1.3;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.6;
+  
+  /* ============================================
+     SPACING SYSTEM - 8-Point Grid
+     ============================================ */
+  
+  --spacing-3xs: 0.125rem;    /* 2px - Micro-gaps */
+  --spacing-2xs: 0.25rem;     /* 4px - Tiny gaps */
+  --spacing-xs: 0.5rem;       /* 8px - Small component padding */
+  --spacing-sm: 0.75rem;      /* 12px - Compact padding */
+  --spacing-md: 1rem;         /* 16px - Default padding */
+  --spacing-lg: 1.5rem;       /* 24px - Section spacing */
+  --spacing-xl: 2rem;         /* 32px - Large margins */
+  --spacing-2xl: 3rem;        /* 48px - Major section breaks */
+  --spacing-3xl: 4rem;        /* 64px - Page-level rhythm */
+  
+  /* ============================================
+     BORDER RADIUS
+     ============================================ */
+  
+  --radius-sm: 0.5rem;        /* 8px - Soft rounded corners */
+  --radius-md: 0.75rem;       /* 12px - Card corners */
+  --radius-lg: 1rem;          /* 16px - Large components */
+  --radius-xl: 1.25rem;       /* 20px - Extra large */
+  --radius-full: 9999px;      /* Pill shape / circular */
+  
+  /* ============================================
+     SHADOWS - Brand-Aligned Elevation
+     ============================================ */
+  
+  --shadow-xs: 0 1px 2px rgba(94, 23, 235, 0.05);
+  --shadow-sm: 0 2px 4px rgba(94, 23, 235, 0.08);
+  --shadow-md: 0 4px 12px rgba(94, 23, 235, 0.12);
+  --shadow-lg: 0 8px 24px rgba(94, 23, 235, 0.16);
+  --shadow-xl: 0 12px 40px rgba(94, 23, 235, 0.2);
+  
+  /* Gold/Secondary Shadows for Highlights */
+  --shadow-gold-sm: 0 2px 8px rgba(255, 184, 0, 0.3);
+  --shadow-gold-md: 0 4px 16px rgba(255, 184, 0, 0.4);
+  --shadow-gold-lg: 0 6px 24px rgba(255, 184, 0, 0.5);
+  
+  /* ============================================
+     TRANSITIONS & ANIMATIONS
+     ============================================ */
+  
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 350ms ease;
+  
+  --easing-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-in: cubic-bezier(0.4, 0, 1, 1);
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* ============================================
+     Z-INDEX SCALE
+     ============================================ */
+  
+  --z-base: 0;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+  
+  /* ============================================
+     CONTAINER & LAYOUT
+     ============================================ */
+  
+  --container-max-width: 1400px;
+  --container-padding: var(--spacing-xl);
+  
+  /* Breakpoints (for reference in media queries) */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
+
+/* Text Colors */
+.text-primary { color: var(--color-brand-primary); }
+.text-secondary { color: var(--color-brand-secondary); }
+.text-default { color: var(--color-text-default); }
+.text-inverse { color: var(--color-text-inverse); }
+.text-muted { color: var(--color-text-muted); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-error { color: var(--color-error); }
+
+/* Background Colors */
+.bg-primary { background-color: var(--color-brand-primary); }
+.bg-secondary { background-color: var(--color-brand-secondary); }
+.bg-white { background-color: var(--color-background-default); }
+.bg-light { background-color: var(--color-background-light); }
+
+/* Font Families */
+.font-header { font-family: var(--font-family-header); }
+.font-body { font-family: var(--font-family-body); }
+
+/* Font Weights */
+.font-regular { font-weight: var(--font-weight-regular); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+/* Border Radius */
+.rounded-sm { border-radius: var(--radius-sm); }
+.rounded-md { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-full { border-radius: var(--radius-full); }
+
+/* Shadows */
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+.shadow-gold { box-shadow: var(--shadow-gold-md); }

@@ -4,17 +4,17 @@
  */
 
 import { Transaction } from '@mysten/sui/transactions';
-import { SuiClient } from '@mysten/sui/client';
+import { SuiClient, getFullnodeUrl } from '@mysten/sui/client';
 
 // Contract configuration
-export const PACKAGE_ID = '0x2cf73e2764bedfd840acd574a89ac4e3e34c77992a3565ed2da3853543dd9243';
+export const PACKAGE_ID = '0xa220e3bf27fe8c285d1995fdc7d498ebe18650733c8d64ea436db244ab65fb89';
 export const MODULE_NAME = 'marketplace';
 export const NETWORK = 'testnet';
 
-// Initialize Sui client
+// Initialize Sui client with proper URL
 export function getSuiClient() {
   return new SuiClient({ 
-    url: `https://fullnode.testnet.sui.io:443`
+    url: getFullnodeUrl('testnet')
   });
 }
 
@@ -22,17 +22,22 @@ export function getSuiClient() {
  * Mint a dataset NFT on Sui blockchain
  * @param {Array<number>} cidBytes - CID as byte array
  * @param {Object} metadata - Dataset metadata
- * @param {Object} walletApi - Connected wallet API (from wallet standard)
+ * @param {Function} signAndExecuteTransaction - Transaction signing function from dapp-kit
  * @returns {Promise<{digest: string, datasetId: string}>}
  */
-export async function mintDataset(cidBytes, metadata, walletApi) {
+export async function mintDataset(cidBytes, metadata, signAndExecuteTransaction) {
   try {
-    const client = getSuiClient();
     const tx = new Transaction();
     
     // Encode metadata as JSON bytes
     const encoder = new TextEncoder();
     const metaBytes = Array.from(encoder.encode(JSON.stringify(metadata)));
+    
+    console.log('Building mint transaction:', {
+      cidBytesLength: cidBytes.length,
+      metaBytesLength: metaBytes.length,
+      metadata
+    });
     
     // Call mint_dataset function
     tx.moveCall({
@@ -43,33 +48,86 @@ export async function mintDataset(cidBytes, metadata, walletApi) {
       ],
     });
     
-    // Sign and execute transaction
-    const result = await walletApi.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+    console.log('Sending transaction to wallet for signing...');
+    
+    // Sign and execute transaction using dapp-kit
+    const result = await signAndExecuteTransaction({
+      transaction: tx,
+    });
+    
+    console.log('Transaction submitted, digest:', result.digest);
+    
+    // Wait for transaction to be confirmed and fetch full result
+    const client = getSuiClient();
+    console.log('Waiting for transaction confirmation...');
+    
+    const txResult = await client.waitForTransaction({
+      digest: result.digest,
       options: {
         showEffects: true,
         showObjectChanges: true,
-      },
+      }
     });
     
-    if (result.effects?.status?.status !== 'success') {
-      throw new Error('Transaction failed: ' + result.effects?.status?.error);
+    console.log('Mint transaction confirmed:', txResult);
+    console.log('Mint transaction confirmed:', txResult);
+    
+    // Check if we got a valid result
+    if (!txResult) {
+      throw new Error('No result returned from transaction');
+    }
+    
+    // Check for errors in the result
+    if (txResult.errors && txResult.errors.length > 0) {
+      console.error('Transaction errors:', txResult.errors);
+      throw new Error('Transaction errors: ' + JSON.stringify(txResult.errors));
+    }
+    
+    // Check effects status
+    if (!txResult.effects) {
+      console.error('No effects in result:', txResult);
+      throw new Error('Transaction did not return effects. The transaction may have failed or timed out.');
+    }
+    
+    if (txResult.effects?.status?.status !== 'success') {
+      const error = txResult.effects?.status?.error || 'Unknown error';
+      console.error('Transaction failed with status:', txResult.effects?.status);
+      throw new Error('Transaction failed: ' + error);
     }
     
     // Extract created Dataset object ID
-    const createdObjects = result.objectChanges?.filter(
+    const createdObjects = txResult.objectChanges?.filter(
       change => change.type === 'created' && change.objectType?.includes('Dataset')
     ) || [];
     
+    console.log('Created objects:', createdObjects);
+    
     const datasetId = createdObjects[0]?.objectId;
     
+    if (!datasetId) {
+      console.error('No dataset ID found in result:', txResult);
+      throw new Error('Could not extract dataset ID from transaction result');
+    }
+    
+    console.log('✅ Dataset minted successfully:', datasetId);
+    
     return {
-      digest: result.digest,
-      datasetId: datasetId || null,
-      effects: result.effects
+      digest: txResult.digest,
+      datasetId: datasetId,
+      effects: txResult.effects
     };
   } catch (error) {
-    console.error('Mint dataset error:', error);
+    console.error('❌ Mint dataset error:', error);
+    
+    // Provide more helpful error messages
+    if (error.message?.includes('Failed to fetch') || error.message?.includes('fetch')) {
+      throw new Error('Network error: Could not connect to Sui network. Please check your internet connection and try again.');
+    } else if (error.message?.includes('Rejected') || error.message?.includes('rejected')) {
+      throw new Error('Transaction rejected by user');
+    } else if (error.message?.includes('Insufficient')) {
+      throw new Error('Insufficient SUI balance to pay for transaction');
+    }
+    
     throw error;
   }
 }
@@ -109,15 +167,21 @@ export async function getOwnedDatasets(address) {
  * Create a listing for a dataset
  * @param {string} datasetId - Dataset object ID
  * @param {number} priceInSui - Price in SUI (will be converted to MIST)
- * @param {Object} walletApi - Connected wallet API
+ * @param {Function} signAndExecuteTransaction - Transaction signing function from dapp-kit
  * @returns {Promise<{digest: string, listingId: string}>}
  */
-export async function createListing(datasetId, priceInSui, walletApi) {
+export async function createListing(datasetId, priceInSui, signAndExecuteTransaction) {
   try {
     const tx = new Transaction();
     
     // Convert SUI to MIST (1 SUI = 1_000_000_000 MIST)
     const priceInMist = Math.floor(priceInSui * 1_000_000_000);
+    
+    console.log('Building listing transaction:', {
+      datasetId,
+      priceInSui,
+      priceInMist
+    });
     
     // Call create_listing function
     tx.moveCall({
@@ -128,33 +192,73 @@ export async function createListing(datasetId, priceInSui, walletApi) {
       ],
     });
     
-    const result = await walletApi.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+    console.log('Sending listing transaction to wallet...');
+    
+    const result = await signAndExecuteTransaction({
+      transaction: tx,
+    });
+    
+    console.log('Listing transaction submitted, digest:', result.digest);
+    
+    // Wait for transaction confirmation
+    const client = getSuiClient();
+    console.log('Waiting for listing transaction confirmation...');
+    
+    const txResult = await client.waitForTransaction({
+      digest: result.digest,
       options: {
         showEffects: true,
         showObjectChanges: true,
         showEvents: true
-      },
+      }
     });
     
-    if (result.effects?.status?.status !== 'success') {
-      throw new Error('Transaction failed: ' + result.effects?.status?.error);
+    console.log('Listing transaction confirmed:', txResult);
+    
+    if (!txResult.effects) {
+      console.error('No effects in listing result:', txResult);
+      throw new Error('Listing transaction did not return effects.');
+    }
+    
+    if (txResult.effects?.status?.status !== 'success') {
+      const error = txResult.effects?.status?.error || 'Unknown error';
+      console.error('Listing transaction failed:', txResult.effects?.status);
+      throw new Error('Transaction failed: ' + error);
     }
     
     // Extract created Listing object ID
-    const createdObjects = result.objectChanges?.filter(
+    const createdObjects = txResult.objectChanges?.filter(
       change => change.type === 'created' && change.objectType?.includes('Listing')
     ) || [];
     
+    console.log('Created listing objects:', createdObjects);
+    
     const listingId = createdObjects[0]?.objectId;
     
+    if (!listingId) {
+      console.error('No listing ID found in result:', txResult);
+      throw new Error('Could not extract listing ID from transaction result');
+    }
+    
+    console.log('✅ Listing created successfully:', listingId);
+    
     return {
-      digest: result.digest,
-      listingId: listingId || null,
-      events: result.events
+      digest: txResult.digest,
+      listingId: listingId,
+      events: txResult.events
     };
   } catch (error) {
-    console.error('Create listing error:', error);
+    console.error('❌ Create listing error:', error);
+    
+    // Provide more helpful error messages
+    if (error.message?.includes('Failed to fetch') || error.message?.includes('fetch')) {
+      throw new Error('Network error: Could not connect to Sui network. Please check your internet connection and try again.');
+    } else if (error.message?.includes('Rejected') || error.message?.includes('rejected')) {
+      throw new Error('Transaction rejected by user');
+    } else if (error.message?.includes('Insufficient')) {
+      throw new Error('Insufficient SUI balance to pay for transaction');
+    }
+    
     throw error;
   }
 }
@@ -163,17 +267,23 @@ export async function createListing(datasetId, priceInSui, walletApi) {
  * Buy a listing
  * @param {string} listingId - Listing object ID
  * @param {number} priceInSui - Price in SUI
- * @param {Object} walletApi - Connected wallet API
+ * @param {Function} signAndExecuteTransaction - Transaction signing function from dapp-kit
  * @param {string} buyerAddress - Buyer's address
  * @returns {Promise<{digest: string}>}
  */
-export async function buyListing(listingId, priceInSui, walletApi, buyerAddress) {
+export async function buyListing(listingId, priceInSui, signAndExecuteTransaction, buyerAddress) {
+  console.log('🛒 Starting buy listing transaction...');
+  console.log('Listing ID:', listingId);
+  console.log('Price:', priceInSui, 'SUI');
+  console.log('Buyer:', buyerAddress);
+  
   try {
     const client = getSuiClient();
     const tx = new Transaction();
     
     // Convert SUI to MIST
     const priceInMist = Math.floor(priceInSui * 1_000_000_000);
+    console.log('Price in MIST:', priceInMist);
     
     // Get buyer's SUI coins
     const coins = await client.getCoins({
@@ -185,6 +295,8 @@ export async function buyListing(listingId, priceInSui, walletApi, buyerAddress)
       throw new Error('No SUI coins found in wallet');
     }
     
+    console.log('Found', coins.data.length, 'SUI coins');
+    
     // Merge coins if needed and split exact amount
     const [primaryCoin, ...otherCoins] = coins.data;
     
@@ -193,6 +305,7 @@ export async function buyListing(listingId, priceInSui, walletApi, buyerAddress)
         tx.object(primaryCoin.coinObjectId),
         otherCoins.map(coin => tx.object(coin.coinObjectId))
       );
+      console.log('Merged', otherCoins.length, 'additional coins');
     }
     
     const payment = tx.splitCoins(tx.object(primaryCoin.coinObjectId), [tx.pure.u64(priceInMist)]);
@@ -206,27 +319,46 @@ export async function buyListing(listingId, priceInSui, walletApi, buyerAddress)
       ],
     });
     
-    // Transfer the change back to sender
+    // Transfer the purchased dataset NFT to buyer
     tx.transferObjects([result], tx.pure.address(buyerAddress));
     
-    const txResult = await walletApi.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+    console.log('Transaction built, requesting signature...');
+    
+    const txResult = await signAndExecuteTransaction({
+      transaction: tx,
       options: {
         showEffects: true,
         showEvents: true
       },
     });
     
-    if (txResult.effects?.status?.status !== 'success') {
-      throw new Error('Transaction failed: ' + txResult.effects?.status?.error);
+    console.log('Transaction submitted:', txResult.digest);
+    
+    // Wait for transaction confirmation
+    const txResponse = await client.waitForTransaction({
+      digest: txResult.digest,
+      options: {
+        showEffects: true,
+        showEvents: true,
+        showObjectChanges: true
+      }
+    });
+    
+    console.log('Transaction confirmed:', txResponse);
+    
+    if (txResponse.effects?.status?.status !== 'success') {
+      throw new Error('Transaction failed: ' + txResponse.effects?.status?.error);
     }
     
+    console.log('✅ Purchase successful!');
+    
     return {
-      digest: txResult.digest,
-      events: txResult.events
+      digest: txResponse.digest,
+      events: txResponse.events,
+      effects: txResponse.effects
     };
   } catch (error) {
-    console.error('Buy listing error:', error);
+    console.error('❌ Buy listing error:', error);
     throw error;
   }
 }
@@ -234,12 +366,17 @@ export async function buyListing(listingId, priceInSui, walletApi, buyerAddress)
 /**
  * Claim dataset after purchase
  * @param {string} listingId - Listing object ID
- * @param {Object} walletApi - Connected wallet API
+ * @param {Function} signAndExecuteTransaction - Transaction signing function from dapp-kit
  * @param {string} buyerAddress - Buyer's address
  * @returns {Promise<{digest: string, datasetId: string}>}
  */
-export async function claimDataset(listingId, walletApi, buyerAddress) {
+export async function claimDataset(listingId, signAndExecuteTransaction, buyerAddress) {
+  console.log('📦 Starting claim dataset transaction...');
+  console.log('Listing ID:', listingId);
+  console.log('Buyer:', buyerAddress);
+  
   try {
+    const client = getSuiClient();
     const tx = new Transaction();
     
     // Call claim_dataset function
@@ -253,31 +390,48 @@ export async function claimDataset(listingId, walletApi, buyerAddress) {
     // Transfer dataset to buyer
     tx.transferObjects([dataset], tx.pure.address(buyerAddress));
     
-    const result = await walletApi.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+    console.log('Transaction built, requesting signature...');
+    
+    const txResult = await signAndExecuteTransaction({
+      transaction: tx,
       options: {
         showEffects: true,
         showObjectChanges: true
       },
     });
     
-    if (result.effects?.status?.status !== 'success') {
-      throw new Error('Transaction failed: ' + result.effects?.status?.error);
+    console.log('Transaction submitted:', txResult.digest);
+    
+    // Wait for transaction confirmation
+    const txResponse = await client.waitForTransaction({
+      digest: txResult.digest,
+      options: {
+        showEffects: true,
+        showObjectChanges: true
+      }
+    });
+    
+    console.log('Transaction confirmed:', txResponse);
+    
+    if (txResponse.effects?.status?.status !== 'success') {
+      throw new Error('Transaction failed: ' + txResponse.effects?.status?.error);
     }
     
     // Extract transferred Dataset object ID
-    const transferredObjects = result.objectChanges?.filter(
+    const transferredObjects = txResponse.objectChanges?.filter(
       change => change.type === 'created' && change.objectType?.includes('Dataset')
     ) || [];
     
     const datasetId = transferredObjects[0]?.objectId;
     
+    console.log('✅ Dataset claimed! Dataset ID:', datasetId);
+    
     return {
-      digest: result.digest,
+      digest: txResponse.digest,
       datasetId: datasetId || null
     };
   } catch (error) {
-    console.error('Claim dataset error:', error);
+    console.error('❌ Claim dataset error:', error);
     throw error;
   }
 }
@@ -285,11 +439,15 @@ export async function claimDataset(listingId, walletApi, buyerAddress) {
 /**
  * Collect proceeds from a listing
  * @param {string} listingId - Listing object ID
- * @param {Object} walletApi - Connected wallet API
+ * @param {Function} signAndExecuteTransaction - Transaction signing function from dapp-kit
  * @returns {Promise<{digest: string}>}
  */
-export async function collectProceeds(listingId, walletApi) {
+export async function collectProceeds(listingId, signAndExecuteTransaction) {
+  console.log('💰 Starting collect proceeds transaction...');
+  console.log('Listing ID:', listingId);
+  
   try {
+    const client = getSuiClient();
     const tx = new Transaction();
     
     // Call collect_proceeds function
@@ -300,22 +458,38 @@ export async function collectProceeds(listingId, walletApi) {
       ],
     });
     
-    const result = await walletApi.signAndExecuteTransactionBlock({
-      transactionBlock: tx,
+    console.log('Transaction built, requesting signature...');
+    
+    const txResult = await signAndExecuteTransaction({
+      transaction: tx,
       options: {
         showEffects: true
       },
     });
     
-    if (result.effects?.status?.status !== 'success') {
-      throw new Error('Transaction failed: ' + result.effects?.status?.error);
+    console.log('Transaction submitted:', txResult.digest);
+    
+    // Wait for transaction confirmation
+    const txResponse = await client.waitForTransaction({
+      digest: txResult.digest,
+      options: {
+        showEffects: true
+      }
+    });
+    
+    console.log('Transaction confirmed:', txResponse);
+    
+    if (txResponse.effects?.status?.status !== 'success') {
+      throw new Error('Transaction failed: ' + txResponse.effects?.status?.error);
     }
     
+    console.log('✅ Proceeds collected!');
+    
     return {
-      digest: result.digest
+      digest: txResponse.digest
     };
   } catch (error) {
-    console.error('Collect proceeds error:', error);
+    console.error('❌ Collect proceeds error:', error);
     throw error;
   }
 }

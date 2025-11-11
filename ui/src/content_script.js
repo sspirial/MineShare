@@ -6,6 +6,48 @@
   if (window.__sample_extension_overlay_setup) return;
   window.__sample_extension_overlay_setup = true;
 
+  // Check if this page is expecting export data (for dApp integration)
+  (async function checkForExportData() {
+    try {
+      const urlParams = new URLSearchParams(window.location.search);
+      console.log('[MineShare Content Script] URL params:', urlParams.toString());
+      
+      if (urlParams.get('export') === 'pending') {
+        console.log('[MineShare Content Script] Export pending detected, requesting data from background...');
+        
+        // Request export data from background script
+        chrome.runtime.sendMessage({type: 'get_pending_export'}, (response) => {
+          console.log('[MineShare Content Script] Response from background:', response);
+          
+          if (response && response.ok && response.data) {
+            console.log('[MineShare Content Script] Injecting data into localStorage');
+            
+            // Inject data into page context via localStorage
+            // This makes it accessible to the dApp
+            window.localStorage.setItem('mineshare_pending_export', JSON.stringify(response.data));
+            window.localStorage.setItem('mineshare_export_timestamp', Date.now().toString());
+            
+            console.log('[MineShare Content Script] Data injected, dispatching event');
+            
+            // Dispatch a custom event so the dApp knows data is ready
+            window.dispatchEvent(new CustomEvent('mineshare_data_ready', { 
+              detail: { 
+                domains: response.data.summary?.totalDomains || 0,
+                events: response.data.summary?.totalEvents || 0 
+              }
+            }));
+            
+            console.log('[MineShare Content Script] ✅ Export data ready');
+          } else {
+            console.warn('[MineShare Content Script] No data received:', response);
+          }
+        });
+      }
+    } catch (e) {
+      console.error('[MineShare Content Script] Export data check failed:', e);
+    }
+  })();
+
   // -------------------- Activity collection (allowed signals only) --------------------
   // Helpers that avoid input, textarea, select, and contenteditable elements
   function isProtectedElement(node) {

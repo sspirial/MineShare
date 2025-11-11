@@ -267,6 +267,54 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   (async () => {
     if (!message || !message.type) return;
 
+    if (message.type === 'get_pending_export') {
+      // Content script requesting export data for dApp
+      console.log('[MineShare Background] get_pending_export request from tab:', sender?.tab?.id);
+      
+      try {
+        const tabId = sender?.tab?.id;
+        if (tabId) {
+          // First try tab-specific export
+          const tabKey = `pending_export_tab_${tabId}`;
+          console.log('[MineShare Background] Checking for tab-specific export:', tabKey);
+          const tabData = await chrome.storage.local.get([tabKey]);
+          
+          if (tabData[tabKey]) {
+            console.log('[MineShare Background] ✅ Found tab-specific export data');
+            sendResponse({ok: true, data: tabData[tabKey]});
+            // Clean up tab-specific data
+            await chrome.storage.local.remove([tabKey]);
+            return;
+          }
+        }
+        
+        // Fallback to general pending export
+        console.log('[MineShare Background] Checking general pending_export');
+        const data = await chrome.storage.local.get(['pending_export', 'export_timestamp']);
+        
+        if (data.pending_export && data.export_timestamp) {
+          const age = Date.now() - data.export_timestamp;
+          console.log('[MineShare Background] Found pending export, age:', age, 'ms');
+          
+          if (age < 5 * 60 * 1000) { // 5 minutes validity
+            console.log('[MineShare Background] ✅ Sending pending export data');
+            sendResponse({ok: true, data: data.pending_export});
+            return;
+          } else {
+            console.warn('[MineShare Background] Export data expired');
+          }
+        } else {
+          console.log('[MineShare Background] No pending export found');
+        }
+        
+        sendResponse({ok: false, error: 'No pending export data'});
+      } catch (e) {
+        console.error('[MineShare Background] Failed to get pending export:', e);
+        sendResponse({ok: false, error: String(e)});
+      }
+      return;
+    }
+
     if (message.type === 'activity_event') {
       // message must include: event (object) and sender.tab.url
       const now = Date.now();
