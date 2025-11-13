@@ -93,7 +93,7 @@ const OptionsApp = () => {
           gap: 'var(--spacing-sm)',
           letterSpacing: '1px'
         }}>
-          <img src="../../assets/icons/new icons/android-chrome-192x192.png" 
+          <img src="../../assets/icons/android-chrome-192x192.png" 
             alt="MineShare logo" width="32" height="32" />
           MineShare
         </div>

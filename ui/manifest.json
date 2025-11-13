@@ -4,20 +4,20 @@
   "description": "Collect and manage your browsing data securely with privacy-preserving data collection.",
   "version": "1.0.0",
   "icons": {
-    "16": "assets/icons/new icons/favicon-16x16.png",
-    "32": "assets/icons/new icons/favicon-32x32.png",
-    "48": "assets/icons/icon48.png",
-    "128": "assets/icons/icon128.png"
+    "16": "assets/icons/favicon-16x16.png",
+    "32": "assets/icons/favicon-32x32.png",
+    "48": "assets/icons/apple-touch-icon.png",
+    "128": "assets/icons/android-chrome-192x192.png"
   },
   "permissions": ["storage","activeTab","scripting","tabs","webNavigation"],
   "action": {
       "default_popup": "pages/popup.html",
     "default_title": "MineShare",
     "default_icon": {
-      "16": "assets/icons/new icons/favicon-16x16.png",
-      "32": "assets/icons/new icons/favicon-32x32.png",
-      "48": "assets/icons/icon48.png",
-      "128": "assets/icons/icon128.png"
+      "16": "assets/icons/favicon-16x16.png",
+      "32": "assets/icons/favicon-32x32.png",
+      "48": "assets/icons/apple-touch-icon.png",
+      "128": "assets/icons/android-chrome-192x192.png"
     }
   },
   "background": {

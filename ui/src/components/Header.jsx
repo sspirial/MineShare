@@ -24,7 +24,7 @@ const Header = ({ title, logoSize = 24 }) => {
       }}>
         <img 
           className="logo-icon" 
-          src="../../assets/icons/new icons/favicon-32x32.png" 
+          src="../../assets/icons/favicon-32x32.png" 
           alt="MineShare logo" 
           width={logoSize} 
           height={logoSize}

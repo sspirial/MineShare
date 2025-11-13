@@ -21,17 +21,17 @@
   --color-brand-tertiary: #FFFFFF;       /* White from logotype text */
   --color-coin: #FF9900;                 /* Coin glow/highlight accent */
   
-  /* Background Colors */
-  --color-background-default: #FFFFFF;   /* Default light canvas */
-  --color-background-brand: #5E17EB;     /* Brand-aligned dark canvas */
-  --color-background-light: #F8F9FA;     /* Subtle light background */
-  --color-background-overlay: rgba(94, 23, 235, 0.95); /* Modal/overlay */
+   /* Background Colors - Dark theme */
+   --color-background-default: #220644;   /* Global dark canvas */
+   --color-background-brand: #5E17EB;     /* Brand accent */
+   --color-background-light: #2B0A59;     /* Dark surface for panels */
+   --color-background-overlay: rgba(34, 6, 68, 0.95); /* Modal/overlay */
   
-  /* Text Colors */
-  --color-text-default: #1A1A1A;         /* Primary dark text */
-  --color-text-inverse: #FFFFFF;         /* Light text on dark backgrounds */
-  --color-text-muted: #666666;           /* Secondary/muted text */
-  --color-text-disabled: #9CA3AF;        /* Disabled state text */
+   /* Text Colors - Dark theme */
+   --color-text-default: #F5F7FA;         /* Primary light text */
+   --color-text-inverse: #1A1A1A;         /* Dark text on light surfaces */
+   --color-text-muted: rgba(255,255,255,0.7);  /* Secondary/muted on dark */
+   --color-text-disabled: rgba(255,255,255,0.45); /* Disabled on dark */
   
   /* Interactive State Colors (Primary) */
   --color-primary-hover: #4A12B8;        /* Darker purple for hover */
@@ -60,10 +60,10 @@
   --color-info-light: #DBEAFE;           /* Info background */
   --color-info-dark: #1E40AF;            /* Info text */
   
-  /* Border & Divider Colors */
-  --color-border-default: #E5E7EB;       /* Default border */
-  --color-border-light: #F3F4F6;         /* Lighter border */
-  --color-border-dark: #D1D5DB;          /* Darker border */
+   /* Border & Divider Colors */
+   --color-border-default: rgba(255,255,255,0.25);  /* Default border on dark */
+   --color-border-light: rgba(255,255,255,0.15);    /* Lighter border */
+   --color-border-dark: rgba(255,255,255,0.35);     /* Darker border */
   
   /* ============================================
      TYPOGRAPHY SYSTEM

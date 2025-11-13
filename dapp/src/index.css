@@ -22,8 +22,7 @@ body {
   line-height: var(--line-height-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Brand-aligned gradient background using primary purple */
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, #4A12B8 100%);
+  background: #220644; /* unify with extension */
   min-height: 100vh;
   overflow-x: hidden;
 }

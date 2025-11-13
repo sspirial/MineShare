@@ -10,18 +10,18 @@ function Marketplace() {
   const [activeTab, setActiveTab] = useState('browse'); // browse, myListings, create
   const [listings, setListings] = useState([]);
   const [isLoadingListings, setIsLoadingListings] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
   const { mutateAsync: signAndExecuteTransaction } = useSignAndExecuteTransaction();
 
   useEffect(() => {
     loadListings();
-    // Refresh listings every 10 seconds
-    const interval = setInterval(loadListings, 10000);
+    // Refresh listings every 30 seconds instead of 10
+    const interval = setInterval(loadListings, 30000);
     return () => clearInterval(interval);
   }, []);
 
   const loadListings = async () => {
     try {
-      setIsLoadingListings(true);
       console.log('Loading listings from blockchain...');
       const blockchainListings = await getAllListings();
       console.log('Fetched listings:', blockchainListings);
@@ -40,6 +40,26 @@ function Marketplace() {
   const browseListings = currentAccount
     ? listings.filter(l => l.seller !== currentAccount.address && !l.sold)
     : listings.filter(l => !l.sold);
+  
+  // Filter listings based on search query
+  const filterListings = (listingsToFilter) => {
+    if (!searchQuery.trim()) return listingsToFilter;
+    
+    const query = searchQuery.toLowerCase();
+    return listingsToFilter.filter(listing => {
+      // Safely convert values to strings and lowercase
+      const datasetId = (listing.dataset ? String(listing.dataset).toLowerCase() : '');
+      const sellerId = (listing.seller ? String(listing.seller).toLowerCase() : '');
+      const price = (listing.price != null ? String(listing.price) : '');
+      
+      return datasetId.includes(query) || 
+             sellerId.includes(query) || 
+             price.includes(query);
+    });
+  };
+
+  const filteredBrowseListings = filterListings(browseListings);
+  const filteredMyListings = filterListings(myListings);
   
   console.log('Current account:', currentAccount?.address);
   console.log('All listings:', listings);
@@ -60,14 +80,51 @@ function Marketplace() {
   return (
     <div className="marketplace">
       <header className="marketplace-header">
-        <div className="header-content">
-          <h1>🌐 MineShare Marketplace</h1>
-          <p className="tagline">Decentralized Data Trading Platform</p>
-        </div>
-        <div className="header-actions">
-          <ConnectButton />
+        <div className="header-top">
+          <img src="/logo.png" alt="MineShare" className="marketplace-logo" />
+          
+          {currentAccount && (
+            <div className="header-center">
+              <input
+                type="text"
+                placeholder="🔍 Search by dataset ID, seller address, or price..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="header-search"
+              />
+              <nav className="header-nav">
+                <button 
+                  className={`nav-btn ${activeTab === 'browse' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('browse')}
+                >
+                  🔍 Browse Listings
+                </button>
+                <button 
+                  className={`nav-btn ${activeTab === 'myListings' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('myListings')}
+                >
+                  📊 My Listings ({myListings.length})
+                </button>
+                <button 
+                  className={`nav-btn ${activeTab === 'create' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('create')}
+                >
+                  ➕ Create Listing
+                </button>
+              </nav>
+            </div>
+          )}
+          
+          <div className="header-actions">
+            <ConnectButton />
+          </div>
         </div>
       </header>
+
+      <div className="marketplace-title-section">
+        <h1>MineShare</h1>
+        <p className="tagline">A decentralized data marketplace</p>
+      </div>
 
       {!currentAccount ? (
         <div className="connect-prompt">
@@ -84,27 +141,6 @@ function Marketplace() {
         </div>
       ) : (
         <>
-          <nav className="marketplace-nav">
-            <button 
-              className={`nav-btn ${activeTab === 'browse' ? 'active' : ''}`}
-              onClick={() => setActiveTab('browse')}
-            >
-              🔍 Browse Listings
-            </button>
-            <button 
-              className={`nav-btn ${activeTab === 'myListings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('myListings')}
-            >
-              📊 My Listings ({myListings.length})
-            </button>
-            <button 
-              className={`nav-btn ${activeTab === 'create' ? 'active' : ''}`}
-              onClick={() => setActiveTab('create')}
-            >
-              ➕ Create Listing
-            </button>
-          </nav>
-
           <main className="marketplace-content">
             {activeTab === 'browse' && (
               <div className="listings-grid">
@@ -112,13 +148,13 @@ function Marketplace() {
                   <div className="empty-state">
                     <h3>Loading listings...</h3>
                   </div>
-                ) : browseListings.length === 0 ? (
+                ) : filteredBrowseListings.length === 0 ? (
                   <div className="empty-state">
-                    <h3>No listings available</h3>
-                    <p>Be the first to list your data!</p>
+                    <h3>{searchQuery ? 'No listings match your search' : 'No listings available'}</h3>
+                    <p>{searchQuery ? 'Try a different search term' : 'Be the first to list your data!'}</p>
                   </div>
                 ) : (
-                  browseListings.map(listing => (
+                  filteredBrowseListings.map(listing => (
                     <ListingCard 
                       key={listing.id} 
                       listing={listing}
@@ -137,13 +173,13 @@ function Marketplace() {
                   <div className="empty-state">
                     <h3>Loading your listings...</h3>
                   </div>
-                ) : myListings.length === 0 ? (
+                ) : filteredMyListings.length === 0 ? (
                   <div className="empty-state">
-                    <h3>You haven't created any listings yet</h3>
-                    <p>Click "Create Listing" to start selling your data</p>
+                    <h3>{searchQuery ? 'No listings match your search' : "You haven't created any listings yet"}</h3>
+                    <p>{searchQuery ? 'Try a different search term' : 'Click "Create Listing" to start selling your data'}</p>
                   </div>
                 ) : (
-                  myListings.map(listing => (
+                  filteredMyListings.map(listing => (
                     <ListingCard 
                       key={listing.id} 
                       listing={listing}
